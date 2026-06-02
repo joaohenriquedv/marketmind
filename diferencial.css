@@ -1,0 +1,83 @@
+.diferencial {
+  background-color: #f7f5f2;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.diferencial__titulo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 40px;
+}
+
+.diferencial__cards {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.diferencial__card {
+  flex: 1 1 300px;
+  max-width: 340px;
+  border-radius: 16px;
+  padding: 28px 32px;
+  text-align: left;
+}
+
+.diferencial__card--outros {
+  background-color: #ffffff;
+  border: 1px solid #e5e3de;
+}
+
+.diferencial__card--marketmind {
+  background-color: #fff3ee;
+  border: 1px solid #f5cbb8;
+}
+
+.diferencial__card-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.diferencial__card-label--destaque {
+  color: #d95f2b;
+}
+
+.diferencial__lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diferencial__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9375rem;
+  color: #333;
+  line-height: 1.4;
+}
+
+.diferencial__icone {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-weight: 700;
+}
+
+.diferencial__icone--x {
+  color: #e05c3a;
+}
+
+.diferencial__icone--check {
+  color: #d95f2b;
+}

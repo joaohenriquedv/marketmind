@@ -1,0 +1,74 @@
+.ps-section {
+  background: #1a1a1a;  /* fundo escuro como no design */
+  padding: 80px 48px;
+  text-align: center;
+}
+
+.ps-title {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: #ffffff;  /* branco explícito */
+  letter-spacing: -0.5px;
+  margin-bottom: 16px;
+  animation: ps-fadeUp 0.6s ease both;
+}
+ 
+.ps-sub {
+  font-size: 1rem;
+  color: #888;
+  line-height: 1.7;
+  max-width: 480px;
+  margin: 0 auto 52px;
+  animation: ps-fadeUp 0.6s 0.1s ease both;
+}
+ 
+.ps-cards {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: ps-fadeUp 0.6s 0.2s ease both;
+}
+ 
+.ps-card {
+  background: #242424;
+  border: 1px solid #2e2e2e;
+  border-radius: 14px;
+  padding: 32px 28px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: default;
+}
+ 
+.ps-card:hover {
+  border-color: rgba(244, 116, 33, 0.4);
+  transform: translateY(-4px);
+}
+ 
+.ps-card-icon {
+  font-size: 1.6rem;
+  color: #f47421;
+}
+ 
+.ps-card-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+}
+ 
+@keyframes ps-fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* Responsivo */
+@media (max-width: 600px) {
+  .ps-section { padding: 60px 24px; }
+  .ps-cards { gap: 12px; }
+  .ps-card { width: calc(50% - 6px); padding: 24px 16px; }
+}

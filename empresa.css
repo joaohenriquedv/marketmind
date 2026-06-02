@@ -1,0 +1,366 @@
+ @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"); 
+ 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+ 
+/* ── Layout ── */
+.mm-page {
+  display: flex;
+  min-height: 100vh;
+}
+ 
+/* ── Left panel ── */
+.mm-left {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 56px;
+  overflow: hidden;
+  background: #faf9f7;
+}
+ 
+.mm-left::before {
+  content: "";
+  position: absolute;
+  bottom: -120px;
+  right: -120px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 120, 30, 0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+ 
+.mm-left::after {
+  content: "";
+  position: absolute;
+  top: -80px;
+  left: -60px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 160, 60, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+ 
+.mm-logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 48px;
+  letter-spacing: -0.5px;
+}
+ 
+.mm-logo span {
+  color: #f47421;
+}
+ 
+.mm-tagline {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+ 
+.mm-tagline em {
+  color: #f47421;
+  font-style: italic;
+}
+ 
+.mm-deco-line {
+  margin-top: 40px;
+  width: 48px;
+  height: 4px;
+  background: #f47421;
+  border-radius: 2px;
+}
+ 
+/* ── Right panel ── */
+.mm-right {
+  width: 480px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-shadow: -8px 0 48px rgba(0, 0, 0, 0.06);
+}
+ 
+.mm-card {
+  width: 100%;
+  max-width: 380px;
+}
+ 
+/* ── Stepper ── */
+.mm-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 28px;
+}
+ 
+.mm-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+ 
+.mm-step-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+ 
+.mm-step-circle.done {
+  background: #f47421;
+  color: #fff;
+}
+ 
+.mm-step-circle.active {
+  background: #f47421;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.2);
+}
+ 
+.mm-step-circle.idle {
+  background: #e8e6e3;
+  color: #999;
+}
+ 
+.mm-step-label {
+  font-size: 0.65rem;
+  color: #aaa;
+  font-weight: 500;
+}
+ 
+.mm-step-label.active {
+  color: #f47421;
+}
+ 
+.mm-step-connector {
+  width: 32px;
+  height: 2px;
+  background: #e8e6e3;
+  margin-bottom: 18px;
+}
+ 
+.mm-step-connector.done {
+  background: #f47421;
+}
+ 
+/* ── Form title ── */
+.mm-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.4px;
+  margin-bottom: 22px;
+}
+ 
+/* ── Fields ── */
+.mm-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+ 
+.mm-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e5e3e0;
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+ 
+.mm-field:focus-within {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.1);
+}
+ 
+.mm-field-icon {
+  padding: 0 12px;
+  color: #bbb;
+  font-size: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+ 
+.mm-field input,
+.mm-field select {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 13px 12px 13px 0;
+  font-size: 0.88rem;
+  color: #333;
+  font-family: inherit;
+  font-weight: 500;
+  -webkit-appearance: none;
+}
+ 
+.mm-field input::placeholder {
+  color: #bbb;
+  font-weight: 400;
+}
+ 
+.mm-field-arrow {
+  padding: 0 12px;
+  color: #bbb;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+ 
+.mm-row {
+  display: flex;
+  gap: 10px;
+}
+ 
+.mm-row .mm-field {
+  flex: 1;
+}
+ 
+.mm-textarea {
+  width: 100%;
+  border: 1.5px solid #e5e3e0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 13px 14px;
+  font-size: 0.88rem;
+  color: #333;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 72px;
+}
+ 
+.mm-textarea::placeholder {
+  color: #bbb;
+  font-weight: 400;
+}
+ 
+.mm-textarea:focus {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.1);
+}
+ 
+/* ── Buttons ── */
+.mm-btn-row {
+  display: flex;
+  gap: 10px;
+}
+ 
+.mm-btn-back {
+  flex: 0 0 auto;
+  padding: 13px 22px;
+  border: 1.5px solid #e5e3e0;
+  border-radius: 10px;
+  background: #fff;
+  color: #555;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+ 
+.mm-btn-back:hover {
+  border-color: #ccc;
+  color: #111;
+}
+ 
+.mm-btn-submit {
+  flex: 1;
+  padding: 13px 22px;
+  border: none;
+  border-radius: 10px;
+  background: #f47421;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  letter-spacing: 0.01em;
+}
+ 
+.mm-btn-submit:hover {
+  background: #e0641a;
+  box-shadow: 0 4px 16px rgba(244, 116, 33, 0.3);
+  transform: translateY(-1px);
+}
+ 
+.mm-btn-submit:active {
+  transform: translateY(0);
+}
+
+/* ── Responsivo ── */
+@media (max-width: 768px) {
+  .mm-page {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Painel esquerdo vira header */
+  .mm-left {
+    padding: 32px 28px 28px;
+    flex: none;
+  }
+
+  .mm-logo {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+
+  .mm-tagline {
+    font-size: 1.5rem;
+  }
+
+  .mm-deco-line {
+    margin-top: 20px;
+  }
+
+  /* Painel direito ocupa o resto */
+  .mm-right {
+    width: 100%;
+    padding: 28px 20px 40px;
+    box-shadow: none;
+    align-items: flex-start;
+  }
+
+  .mm-card {
+    max-width: 100%;
+  }
+
+  /* Estado + Cidade empilham em telas muito pequenas */
+  @media (max-width: 380px) {
+    .mm-row {
+      flex-direction: column;
+    }
+  }
+}
