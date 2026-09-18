@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#  Texto para ignorar o arquivo de ia
+
+ node_modules/
+.env
+.env.*
+.env.local
+dist/
+build/
