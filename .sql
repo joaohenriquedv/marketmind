@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS marketmind;
+
 CREATE DATABASE marketmind
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
@@ -6,7 +8,6 @@ USE marketmind;
 
 -- USUÁRIOS
 CREATE TABLE usuarios (
-
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
@@ -102,7 +103,3 @@ SELECT * FROM negocios;
 SELECT * FROM produtos;
 SELECT * FROM alertas;
 SELECT * FROM conversas;
-SHOW DATABASES;
-
-USE marketmind;
-SHOW TABLES;
