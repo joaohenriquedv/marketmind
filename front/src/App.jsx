@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 import Cadastro from "./components/cadastro/cadastro.jsx";
@@ -15,6 +16,7 @@ import Dashboard from "./components/dashboard/dashboard.jsx";
 import Alertas from "./components/alertas.jsx";
 import ChatBot from "./chatbot/chatbot";
 import Contato from "./components/contato/contato.jsx";
+import DashboardAdmin from "./components/admin/DashboardAdmin.jsx";
 
 function Home({ setPagina, pagina }) {
   return (
@@ -32,7 +34,7 @@ function Home({ setPagina, pagina }) {
 }
 
 function App() {
-  const [pagina, setPagina] = useState("cadastro-usuario");
+  const [pagina, setPagina] = useState("login");
 
   if (pagina === "cadastro-usuario") {
     return (
@@ -46,8 +48,8 @@ function App() {
   if (pagina === "login") {
     return (
       <Login
-        onEntrar={() => setPagina("produto")}
-        onCriarConta={() => setPagina("cadastro-usuario")}
+        onNavegar={setPagina}
+        onIrParaCadastro={() => setPagina("cadastro-usuario")}
       />
     );
   }
@@ -97,6 +99,15 @@ function App() {
       <>
         <Navbar onNavegar={setPagina} paginaAtiva="alertas" />
         <Alertas onNavegar={setPagina} />
+      </>
+    );
+  }
+
+  if (pagina === "admin") {
+    return (
+      <>
+        <Navbar onNavegar={setPagina} paginaAtiva="admin" />
+        <DashboardAdmin onNavegar={setPagina} />
       </>
     );
   }

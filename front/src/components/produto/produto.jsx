@@ -3,7 +3,7 @@ import "./produto.css";
 import Navbar from "../navbar.jsx";
 import SeletorNegocio from "../seletorneg";
 import NovoNegocio from "../novonegocio";
-import { listarNegocios } from "../../api";
+import { listarNegociosUsuario as listarNegocios } from "../../api";
 
 const initialProdutos = [
   

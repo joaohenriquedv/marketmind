@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import "./cadastro.css";
 import { cadastrarUsuario } from "../../api";
@@ -11,6 +12,8 @@ export default function Cadastro({ onVoltar, onCadastrar }) {
   const [carregando, setCarregando] = useState(false);
 
   async function handleCadastrar() {
+    if (carregando) return;
+
     setErro("");
 
     if (!nome || !email || !senha || !confirmarSenha) {
@@ -39,22 +42,27 @@ export default function Cadastro({ onVoltar, onCadastrar }) {
 
       console.log("RESULTADO CADASTRO:", resultado);
 
-      if (resultado.sucesso && resultado.usuario) {
+      if (resultado.usuario) {
         localStorage.setItem(
           "usuario",
           JSON.stringify(resultado.usuario)
         );
 
+        if (resultado.token) {
+          localStorage.setItem("token", resultado.token);
+        }
+
         onCadastrar(resultado.usuario);
       } else {
         setErro(
           resultado.erro ||
+          resultado.mensagem ||
           "Cadastro feito, mas o usuário não foi retornado pelo servidor."
         );
       }
     } catch (error) {
       console.log("ERRO NO CADASTRO:", error);
-      setErro("Erro inesperado ao cadastrar.");
+      setErro(error.message || "Erro inesperado ao cadastrar.");
     } finally {
       setCarregando(false);
     }

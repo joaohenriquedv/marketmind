@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const Groq = require("groq-sdk");
@@ -9,6 +10,13 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Avisa logo na subida se a chave não estiver definida
+if (!process.env.GROQ_API_KEY) {
+  console.error(
+    "❌ GROQ_API_KEY não está definida no .env — o chat não vai funcionar."
+  );
+}
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
@@ -29,25 +37,29 @@ app.get("/teste-banco", async (req, res) => {
       banco: resultado
     });
   } catch (error) {
-    console.error(error);
+    console.error("ERRO BANCO:", error.message);
     res.status(500).json({
-      erro: "Erro ao conectar no banco"
+      erro: "Erro ao conectar no banco",
+      detalhe: error.message
     });
   }
 });
 
 app.post("/chat", async (req, res) => {
+  const { mensagem, usuario_id } = req.body;
+
+  if (!mensagem) {
+    return res.status(400).json({
+      erro: "Mensagem é obrigatória"
+    });
+  }
+
+  // ── 1) CHAMADA À IA (isolada) ──
+  let resposta;
+
   try {
-    const { mensagem, usuario_id } = req.body;
-
-    if (!mensagem) {
-      return res.status(400).json({
-        erro: "Mensagem é obrigatória"
-      });
-    }
-
     const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      model: "openai/gpt-oss-20b",
       messages: [
         {
           role: "system",
@@ -61,26 +73,39 @@ app.post("/chat", async (req, res) => {
       ]
     });
 
-    const resposta = completion.choices[0].message.content;
+    resposta = completion.choices[0].message.content;
+  } catch (error) {
+    // Mostra o erro REAL da Groq no terminal
+    console.error(
+      "ERRO GROQ:",
+      error?.response?.data || error.message || error
+    );
 
+    return res.status(502).json({
+      erro:
+        error?.response?.data?.error?.message ||
+        "Erro ao falar com a IA."
+    });
+  }
+
+  // ── 2) SALVAR HISTÓRICO (não derruba o chat se o banco falhar) ──
+  try {
     await db.query(
       "INSERT INTO conversas (usuario_id, pergunta, resposta) VALUES (?, ?, ?)",
       [usuario_id || "visitante", mensagem, resposta]
     );
-
-    res.json({
-      resposta
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      erro: "Erro ao processar mensagem"
-    });
+  } catch (dbError) {
+    console.error(
+      "ERRO BANCO (histórico não salvo):",
+      dbError.message
+    );
   }
+
+  return res.json({ resposta });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 app.listen(PORT, () => {
   console.log(`Servidor da IA rodando em http://localhost:${PORT}`);
-});
+}); 

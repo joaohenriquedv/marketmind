@@ -56,24 +56,22 @@ export default function MarketMindEmpresa({ onBack, onSubmit }) {
 
     setCarregando(true);
 
-    const resultado = await criarNegocio({
-      usuario_id: usuario.id,
-      nome: form.nome,
-      segmento: form.segmento,
-      localizacao: `${form.cidade} - ${form.estado}`,
-      receita_mensal: 0,
-      custos_mensais: 0,
-      funcionarios: Number(form.colaboradores) || 0,
-      anos_mercado: form.fundacao
-        ? new Date().getFullYear() - Number(form.fundacao)
-        : 0,
-      publico_alvo: form.porte,
-      concorrentes: "",
-    });
+    try {
+      const resultado = await criarNegocio({
+        usuario_id: usuario.id,
+        nome: form.nome,
+        segmento: form.segmento,
+        localizacao: `${form.cidade} - ${form.estado}`,
+        receita_mensal: 0,
+        custos_mensais: 0,
+        funcionarios: Number(form.colaboradores) || 0,
+        anos_mercado: form.fundacao
+          ? new Date().getFullYear() - Number(form.fundacao)
+          : 0,
+        publico_alvo: form.porte,
+        concorrentes: "",
+      });
 
-    setCarregando(false);
-
-    if (resultado.sucesso) {
       localStorage.setItem("negocio", JSON.stringify(resultado.negocio));
 
       if (onSubmit) {
@@ -81,8 +79,11 @@ export default function MarketMindEmpresa({ onBack, onSubmit }) {
       }
 
       alert("Empresa cadastrada com sucesso!");
-    } else {
-      setErro(resultado.erro || "Erro ao cadastrar empresa.");
+    } catch (error) {
+      console.error("Erro ao cadastrar empresa:", error);
+      setErro(error.message || "Erro ao cadastrar empresa.");
+    } finally {
+      setCarregando(false);
     }
   }
 

@@ -1,131 +1,199 @@
+
 const API_URL = "http://localhost:3000";
 
-export async function cadastrarUsuario(dados) {
+function obterToken() {
+  return localStorage.getItem("token");
+}
+
+async function tratarResposta(resposta) {
+  let dados;
+
   try {
-    const res = await fetch(`${API_URL}/usuarios/cadastrar`, {
+    dados = await resposta.json();
+  } catch (error) {
+    throw new Error(
+      "O servidor não retornou uma resposta válida.",
+      { cause: error }
+    );
+  }
+
+  if (!resposta.ok) {
+    throw new Error(
+      dados.erro ||
+      dados.mensagem ||
+      "Erro ao realizar a operação."
+    );
+  }
+
+  return dados;
+}
+
+// ===============================
+// CADASTRO
+// ===============================
+
+export async function cadastrarUsuario(dados) {
+  const resposta = await fetch(
+    `${API_URL}/usuarios/cadastrar`,
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(dados)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        sucesso: false,
-        erro: data.erro || "Erro ao cadastrar usuário."
-      };
     }
+  );
 
-    return {
-      sucesso: true,
-      mensagem: data.mensagem,
-      usuario: data.usuario
-    };
-  } catch (error) {
-    console.log("Erro cadastro:", error);
-
-    return {
-      sucesso: false,
-      erro: "Erro ao conectar com o servidor."
-    };
-  }
+  return tratarResposta(resposta);
 }
+
+// ===============================
+// LOGIN
+// ===============================
 
 export async function loginUsuario(dados) {
-  try {
-    const res = await fetch(`${API_URL}/usuarios/login`, {
+  const resposta = await fetch(
+    `${API_URL}/usuarios/login`,
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(dados)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        sucesso: false,
-        erro: data.erro || "Erro ao fazer login."
-      };
     }
+  );
 
-    return {
-      sucesso: true,
-      mensagem: data.mensagem,
-      token: data.token,
-      usuario: data.usuario
-    };
-  } catch (error) {
-    console.log("Erro login:", error);
-
-    return {
-      sucesso: false,
-      erro: "Erro ao conectar com o servidor."
-    };
-  }
+  return tratarResposta(resposta);
 }
+
+// ===============================
+// ADMIN - RESUMO
+// ===============================
+
+export async function buscarResumoAdmin() {
+  const resposta = await fetch(
+    `${API_URL}/admin/resumo`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${obterToken()}`
+      }
+    }
+  );
+
+  return tratarResposta(resposta);
+}
+
+// ===============================
+// ADMIN - USUÁRIOS
+// ===============================
+
+export async function buscarUsuariosAdmin() {
+  const resposta = await fetch(
+    `${API_URL}/admin/usuarios`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${obterToken()}`
+      }
+    }
+  );
+
+  return tratarResposta(resposta);
+}
+
+// ===============================
+// ADMIN - NEGÓCIOS
+// ===============================
+
+export async function buscarNegociosAdmin() {
+  const resposta = await fetch(
+    `${API_URL}/admin/negocios`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${obterToken()}`
+      }
+    }
+  );
+
+  return tratarResposta(resposta);
+}
+
+// ===============================
+// ADMIN - ALTERAR STATUS
+// ===============================
+
+export async function alterarStatusUsuario(id, ativo) {
+  const resposta = await fetch(
+    `${API_URL}/admin/usuarios/${id}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${obterToken()}`
+      },
+      body: JSON.stringify({
+        ativo
+      })
+    }
+  );
+
+  return tratarResposta(resposta);
+}
+
+// ===============================
+// NEGÓCIOS - CRIAR
+// ===============================
 
 export async function criarNegocio(dados) {
-  try {
-    const res = await fetch(`${API_URL}/negocios/criar`, {
+  const resposta = await fetch(
+    `${API_URL}/negocios/criar`,
+    {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${obterToken()}`
       },
       body: JSON.stringify(dados)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        sucesso: false,
-        erro: data.erro || "Erro ao criar negócio."
-      };
     }
+  );
 
-    return {
-      sucesso: true,
-      negocio: data.negocio,
-      mensagem: data.mensagem
-    };
-  } catch (error) {
-    console.log("Erro negócio:", error);
-
-    return {
-      sucesso: false,
-      erro: "Erro ao conectar com o servidor."
-    };
-  }
+  return tratarResposta(resposta);
 }
 
-export async function listarNegocios(usuarioId) {
-  try {
-    const res = await fetch(`${API_URL}/negocios/${usuarioId}`);
+// ===============================
+// NEGÓCIOS - LISTAR DO USUÁRIO
+// ===============================
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      return {
-        sucesso: false,
-        erro: data.erro || "Erro ao listar negócios."
-      };
+export async function listarNegociosUsuario() {
+  const resposta = await fetch(
+    `${API_URL}/negocios`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${obterToken()}`
+      }
     }
+  );
 
-    return {
-      sucesso: true,
-      negocios: data
-    };
-  } catch (error) {
-    console.log("Erro listar negócios:", error);
+  return tratarResposta(resposta);
+}
 
-    return {
-      sucesso: false,
-      erro: "Erro ao conectar com o servidor."
-    };
-  }
+// ===============================
+// NEGÓCIOS - BUSCAR UM
+// ===============================
+
+export async function buscarNegocio(negocioId) {
+  const resposta = await fetch(
+    `${API_URL}/negocios/${negocioId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${obterToken()}`
+      }
+    }
+  );
+
+  return tratarResposta(resposta);
 }
