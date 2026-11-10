@@ -1,27 +1,33 @@
-import "./problemas.css";
 
-const cards = [
-  { icon: "$", label: "Preço errado" },
-  { icon: "📦", label: "Produto que não gira" },
-  { icon: "📈", label: "Mercado que mudou" },
-  { icon: "👥", label: "Cliente que foi embora" },
+import "./problemas.css";
+import { CircleDollarSign, PackageX, TrendingUp, UserMinus } from "lucide-react";
+
+const PROBLEMAS = [
+  { Icone: CircleDollarSign, titulo: "Preço errado" },
+  { Icone: PackageX, titulo: "Produto que não gira" },
+  { Icone: TrendingUp, titulo: "Mercado que mudou" },
+  { Icone: UserMinus, titulo: "Cliente que foi embora" },
 ];
 
-export default function ProblemSection() {
+export default function Problema() {
   return (
-    <section className="ps-section">
-      <h2 className="ps-title">
+    <section className="mm-problemas">
+      <h2 className="mm-problemas-title">
         Empresas não quebram só por falta de dinheiro
       </h2>
-      <p className="ps-sub">
+
+      <p className="mm-problemas-sub">
         A maioria quebra porque está com o preço errado, vendendo produto que não
         gira e sem perceber as mudanças do mercado.
       </p>
-      <div className="ps-cards">
-        {cards.map(({ icon, label }) => (
-          <div key={label} className="ps-card">
-            <span className="ps-card-icon">{icon}</span>
-            <span className="ps-card-label">{label}</span>
+
+      <div className="mm-problemas-grid">
+        {PROBLEMAS.map(({ Icone, titulo }) => (
+          <div key={titulo} className="mm-problema-card">
+            <span className="mm-problema-icon">
+              <Icone size={30} strokeWidth={1.75} />
+            </span>
+            <span className="mm-problema-label">{titulo}</span>
           </div>
         ))}
       </div>

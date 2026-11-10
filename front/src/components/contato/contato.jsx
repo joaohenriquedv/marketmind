@@ -1,7 +1,7 @@
+
 import { useState } from "react";
 import { Mail, Phone, Clock, Headphones, Send, TrendingUp, Check, ChevronDown } from "lucide-react";
 import "./contato.css";
-import Navbar from "../Navbar";
 
 const ASSUNTOS = [
   "Selecione o assunto",
@@ -58,10 +58,7 @@ export default function ContatoMarketMind() {
   if (enviado) submitClass += " contato-submit--success";
   if (enviando) submitClass += " contato-submit--sending";
 
- return (
-  <>
-    <Navbar />
-
+  return (
     <div className="contato-page">
       <div className="contato-container">
         {/* Header */}
@@ -90,8 +87,8 @@ export default function ContatoMarketMind() {
               <InfoRow
                 icon={<Phone size={20} color="#f97316" />}
                 title="WhatsApp"
-                value="00000-00000"
-                href="https://wa.me/0000000000"
+                value="81 98907-1780"
+                href="https://wa.me/5581989071780"
               />
               <div className="contato-divider" />
               <InfoRow
@@ -219,8 +216,7 @@ export default function ContatoMarketMind() {
           <span className="contato-footer-brand">MarketMind</span>
         </div>
       </div>
-        </div>
-  </>
+    </div>
   );
 }
 

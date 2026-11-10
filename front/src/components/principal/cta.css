@@ -1,58 +1,197 @@
-.cta {
-  background-color: #1e1510;
-  padding: 80px 24px;
-  text-align: center;
+
+/* =========================================
+   CTA
+========================================= */
+
+.cta-section {
+  position: relative;
+  overflow: hidden;
+
+  background: #0c0c0d;
+
+  padding: 100px 24px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  text-align: center;
 }
 
-.cta__icone {
-  width: 52px;
-  height: 52px;
-  background-color: #e8600a;
-  border-radius: 14px;
+/* Brilho laranja no topo */
+.cta-glow {
+  position: absolute;
+  top: -160px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 620px;
+  height: 420px;
+
+  background: radial-gradient(
+    circle,
+    rgba(244, 116, 33, 0.28) 0%,
+    transparent 70%
+  );
+
+  pointer-events: none;
+}
+
+/* Quadrado laranja com o raio */
+.cta-icon {
+  position: relative;
+  z-index: 1;
+
+  width: 68px;
+  height: 68px;
+
+  border-radius: 18px;
+
+  background: #f47421;
+  color: #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
-  margin-bottom: 4px;
+
+  box-shadow: 0 12px 40px rgba(244, 116, 33, 0.45);
+
+  margin-bottom: 28px;
 }
 
-.cta__titulo {
-  font-size: 1.75rem;
-  font-weight: 700;
+.cta-title {
+  position: relative;
+  z-index: 1;
+
   color: #ffffff;
-  margin: 0;
+  font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+
+  margin-bottom: 14px;
 }
 
-.cta__subtitulo {
-  font-size: 0.9375rem;
-  color: #a89880;
-  margin: 0;
-  max-width: 420px;
-  line-height: 1.5;
+.cta-sub {
+  position: relative;
+  z-index: 1;
+
+  color: #9aa0a6;
+  font-size: 1rem;
+  line-height: 1.6;
+
+  max-width: 480px;
+  margin-bottom: 34px;
 }
 
-.cta__botao {
-  margin-top: 8px;
-  background-color: #e8600a;
-  color: #ffffff;
+.cta-button {
+  position: relative;
+  z-index: 1;
+
   border: none;
-  border-radius: 8px;
-  padding: 14px 32px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  background: #f47421;
+  color: #ffffff;
+
+  padding: 15px 34px;
+  border-radius: 999px;
+
+  font-size: 0.98rem;
+  font-weight: 700;
+  font-family: inherit;
+
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  box-shadow: 0 0 24px rgba(232, 96, 10, 0.45);
+
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
-.cta__botao:hover {
-  background-color: #d45508;
+.cta-button:hover {
+  background: #e0641a;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(244, 116, 33, 0.4);
 }
 
-.cta__botao:active {
-  transform: scale(0.97);
+/* =========================================
+   RODAPÉ
+========================================= */
+
+.mm-footer {
+  background: #0a0a0b;
+  border-top: 1px solid #1e1f22;
+
+  padding: 46px 24px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  text-align: center;
+}
+
+.mm-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mm-footer-mark {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 9px;
+
+  background: rgba(244, 116, 33, 0.14);
+  color: #f47421;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.mm-footer-logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.mm-footer-logo span {
+  color: #f47421;
+}
+
+.mm-footer-tagline {
+  color: #8b9198;
+  font-size: 0.85rem;
+}
+
+.mm-footer-divider {
+  width: 100%;
+  max-width: 900px;
+  height: 1px;
+  background: #1e1f22;
+  margin: 6px 0;
+}
+
+.mm-footer-copy {
+  color: #6b7076;
+  font-size: 0.78rem;
+}
+
+/* =========================================
+   RESPONSIVO
+========================================= */
+
+@media (max-width: 560px) {
+  .cta-section {
+    padding: 72px 20px;
+  }
+
+  .cta-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .mm-footer {
+    padding: 36px 20px;
+  }
 }

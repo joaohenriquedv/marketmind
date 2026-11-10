@@ -1,0 +1,1193 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #ffffff;
+  color: #182333;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.perfil-navbar {
+  height: 98px;
+  width: 100%;
+  border-bottom: 1px solid #e9edf2;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 42px;
+
+  background: #ffffff;
+
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+.perfil-logo {
+  width: 185px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+}
+
+.logo-market {
+  color: #172333;
+}
+
+.logo-mind {
+  color: #ff6500;
+}
+
+.perfil-menu {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+
+  margin-left: 35px;
+}
+
+.perfil-menu a {
+  text-decoration: none;
+  color: #657181;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: color 0.15s ease;
+}
+
+.perfil-menu a:hover {
+  color: #ff6500;
+}
+
+.perfil-actions {
+  margin-left: auto;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+
+  transition: background 0.15s ease;
+}
+
+.user-button:hover {
+  background: #f4f4f6;
+}
+
+.user-avatar,
+.user-avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f47421;
+  color: #ffffff;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+
+  user-select: none;
+}
+
+.user-avatar-img {
+  object-fit: cover;
+  display: block;
+}
+
+.user-arrow {
+  font-size: 13px;
+  color: #8a9099;
+}
+
+.new-report-button {
+  border: none;
+
+  background: #f47421;
+  color: #ffffff;
+
+  border-radius: 9px;
+
+  padding: 12px 20px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: background 0.15s ease;
+}
+
+.new-report-button:hover {
+  background: #e06a15;
+}
+
+.new-report-button:active {
+  background: #cf5f10;
+}
+
+/* =========================================
+   PÁGINA DE PERFIL
+========================================= */
+
+.perfil-page {
+  min-height: 100vh;
+  background: #f7f7f5;
+
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.perfil-container {
+  max-width: 1080px;
+  margin: 0 auto;
+
+  padding: 34px 24px 56px;
+}
+
+.perfil-header {
+  margin-bottom: 20px;
+}
+
+.perfil-header h1 {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #16181d;
+}
+
+.perfil-header p {
+  margin-top: 4px;
+  color: #8a9099;
+  font-size: 0.875rem;
+}
+
+.perfil-feedback {
+  margin-bottom: 18px;
+
+  background: #eef7f1;
+  border: 1px solid #cfe9d9;
+  color: #1a7f4b;
+
+  font-size: 0.84rem;
+  font-weight: 500;
+
+  padding: 10px 14px;
+  border-radius: 9px;
+}
+
+.perfil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.perfil-left,
+.perfil-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.perfil-card {
+  background: #ffffff;
+  border: 1px solid #ececef;
+  border-radius: 12px;
+}
+
+.perfil-card h2 {
+  font-size: 0.92rem;
+  color: #16181d;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ── USUÁRIO ── */
+.usuario-card {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f47421;
+  color: #ffffff;
+
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-camera {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  color: #3a3d44;
+
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14);
+
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.avatar-camera:hover {
+  background: #f47421;
+  border-color: #f47421;
+  color: #ffffff;
+}
+
+.usuario-info {
+  min-width: 0;
+}
+
+.usuario-info h2 {
+  font-size: 1.05rem;
+  color: #16181d;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.usuario-info p {
+  font-size: 0.85rem;
+  color: #8a9099;
+  margin-top: 3px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 10px;
+
+  background: #eef7f1;
+  color: #1a7f4b;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #23a55a;
+}
+
+.foto-input {
+  display: none;
+}
+
+/* ── INFORMAÇÕES PESSOAIS ── */
+.informacoes-card {
+  padding: 22px;
+}
+
+.form-group {
+  margin-top: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #5b6069;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.input-wrapper {
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  border: 1px solid #e4e4e8;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-icon {
+  width: 38px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #a5abb4;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+  outline: none;
+
+  color: #16181d;
+  font-size: 0.88rem;
+  font-family: inherit;
+
+  background: transparent;
+  padding-right: 12px;
+}
+
+.input-wrapper input::placeholder {
+  color: #b3b8bf;
+}
+
+.input-wrapper:focus-within {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.12);
+}
+
+.save-button {
+  width: 100%;
+  height: 44px;
+
+  margin-top: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #f47421;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.save-button:hover {
+  background: #e06a15;
+}
+
+.save-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ── PREFERÊNCIAS ── */
+.preferencias-card {
+  padding: 22px 22px 6px;
+}
+
+.card-description {
+  font-size: 0.82rem;
+  color: #8a9099;
+
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.preference-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 15px 0;
+
+  border-bottom: 1px solid #f0f0f2;
+}
+
+.preference-item.last {
+  border-bottom: none;
+}
+
+.preference-icon {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #fdf3ea;
+  color: #c85a12;
+}
+
+.preference-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.preference-content h3 {
+  font-size: 0.85rem;
+  color: #2b2f36;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.preference-content p {
+  font-size: 0.78rem;
+  color: #8a9099;
+  line-height: 1.45;
+}
+
+.switch {
+  width: 36px;
+  height: 20px;
+
+  flex-shrink: 0;
+
+  border: none;
+  padding: 2px;
+  border-radius: 999px;
+
+  background: #d7d9de;
+
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.switch span {
+  display: block;
+
+  width: 16px;
+  height: 16px;
+
+  background: #ffffff;
+  border-radius: 50%;
+
+  transition: transform 0.18s ease;
+}
+
+.switch.active {
+  background: #f47421;
+}
+
+.switch.active span {
+  transform: translateX(16px);
+}
+
+/* ── SEGURANÇA ── */
+.seguranca-card {
+  padding: 22px;
+}
+
+.security-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: 14px;
+}
+
+.security-icon {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #fdf3ea;
+  color: #c85a12;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.security-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.security-info h3 {
+  font-size: 0.85rem;
+  color: #2b2f36;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.security-info p {
+  font-size: 0.78rem;
+  color: #8a9099;
+}
+
+.password-button {
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  color: #3a3d44;
+
+  height: 34px;
+  padding: 0 14px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.password-button:hover {
+  border-color: #cfcfd6;
+  background: #fafafa;
+}
+
+/* ── PLANO ── */
+.plano-card {
+  padding: 22px;
+}
+
+.plano-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: 14px;
+}
+
+.plano-icon {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: #fdf3ea;
+  color: #c85a12;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plano-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plano-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plano-title strong {
+  font-size: 0.88rem;
+  color: #2b2f36;
+  font-weight: 600;
+}
+
+.pro-status {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  color: #1a7f4b;
+  background: #eef7f1;
+
+  padding: 3px 7px;
+  border-radius: 5px;
+}
+
+.plano-info p {
+  margin-top: 3px;
+  font-size: 0.78rem;
+  color: #8a9099;
+}
+
+.manage-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  border: none;
+  background: transparent;
+
+  color: #c85a12;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.manage-plan:hover {
+  color: #a34a0d;
+}
+
+/* ── DADOS DA EMPRESA ── */
+.empresa-card {
+  margin-top: 18px;
+  padding: 22px;
+}
+
+.empresa-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.empresa-head .card-description {
+  margin-top: 4px;
+}
+
+.empresa-editar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  border-radius: 8px;
+
+  padding: 7px 12px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3a3d44;
+
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.empresa-editar:hover {
+  border-color: #f47421;
+  color: #f47421;
+}
+
+.empresa-aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-top: 14px;
+
+  background: #fdf6ef;
+  border: 1px solid #f2e2d3;
+  color: #8a5a2b;
+
+  font-size: 0.83rem;
+
+  padding: 10px 12px;
+  border-radius: 9px;
+}
+
+.empresa-aviso button {
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  color: #c85a12;
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 600;
+
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Modo visualização */
+.empresa-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 22px;
+
+  margin-top: 18px;
+}
+
+.empresa-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.empresa-info-item.full {
+  grid-column: 1 / -1;
+}
+
+.empresa-info-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #a5abb4;
+}
+
+.empresa-info-label svg {
+  color: #c85a12;
+}
+
+.empresa-info-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #16181d;
+  word-break: break-word;
+}
+
+.empresa-info-text {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #5b6069;
+  margin-top: 2px;
+}
+
+/* Modo edição */
+.empresa-form {
+  margin-top: 16px;
+}
+
+.empresa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+.empresa-grid .full {
+  grid-column: 1 / -1;
+}
+
+.input-wrapper select {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #16181d;
+
+  padding-right: 12px;
+  cursor: pointer;
+}
+
+.empresa-textarea {
+  width: 100%;
+  min-height: 86px;
+
+  border: 1px solid #e4e4e8;
+  border-radius: 9px;
+
+  padding: 11px 12px;
+
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #16181d;
+
+  background: #ffffff;
+  outline: none;
+  resize: vertical;
+
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.empresa-textarea::placeholder {
+  color: #b3b8bf;
+}
+
+.empresa-textarea:focus {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.12);
+}
+
+.empresa-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.empresa-actions .save-button {
+  width: auto;
+  margin-top: 0;
+  padding: 0 20px;
+}
+
+.empresa-cancelar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  height: 44px;
+  padding: 0 16px;
+
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #3a3d44;
+
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.empresa-cancelar:hover {
+  border-color: #cfcfd6;
+  background: #fafafa;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media (max-width: 1100px) {
+  .perfil-navbar {
+    padding: 0 25px;
+  }
+
+  .perfil-container {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .perfil-menu {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 850px) {
+  .perfil-menu {
+    display: none;
+  }
+
+  .perfil-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-container {
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 700px) {
+  .empresa-info {
+    grid-template-columns: 1fr;
+  }
+
+  .empresa-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .empresa-actions {
+    flex-direction: column-reverse;
+  }
+
+  .empresa-actions .save-button,
+  .empresa-cancelar {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .perfil-navbar {
+    height: 80px;
+    padding: 0 16px;
+  }
+
+  .perfil-logo {
+    width: auto;
+    font-size: 22px;
+  }
+
+  .new-report-button {
+    display: none;
+  }
+
+  .perfil-container {
+    padding: 24px 15px 44px;
+  }
+
+  .perfil-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .usuario-card {
+    padding: 18px;
+  }
+
+  .avatar {
+    width: 58px;
+    height: 58px;
+    font-size: 1.15rem;
+  }
+
+  .security-content {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .password-button {
+    margin-left: 48px;
+  }
+}
+
+@media (max-width: 430px) {
+  .perfil-actions {
+    gap: 10px;
+  }
+
+  .perfil-actions .user-button {
+    display: none;
+  }
+
+  .perfil-grid {
+    gap: 14px;
+  }
+
+  .informacoes-card,
+  .preferencias-card,
+  .seguranca-card,
+  .plano-card,
+  .empresa-card {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* =========================================================
+   AJUSTES DA PÁGINA DE PERFIL (adicionado)
+   - cabeçalho do card de preferências com interruptor geral
+   - estado "preferências desativadas"
+   - linha extra do card de plano (valor / cobrança)
+========================================================= */
+
+/* ── Cabeçalho do card de preferências ── */
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.card-head-texto {
+  min-width: 0;
+}
+
+.card-head-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Interruptor geral (ativar / desativar as preferências) */
+.switch.switch-principal {
+  width: 42px;
+  height: 23px;
+  padding: 3px;
+}
+
+.switch.switch-principal span {
+  width: 17px;
+  height: 17px;
+}
+
+.switch.switch-principal.active span {
+  transform: translateX(19px);
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Botão de recolher / expandir */
+.card-collapse {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  border-radius: 7px;
+
+  color: #8a9099;
+  cursor: pointer;
+
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background 0.15s ease;
+}
+
+.card-collapse:hover {
+  border-color: #cfcfd6;
+  background: #fafafa;
+  color: #3a3d44;
+}
+
+.card-collapse svg {
+  transition: transform 0.2s ease;
+}
+
+.card-collapse.aberto svg {
+  transform: rotate(180deg);
+}
+
+/* ── Lista de preferências ── */
+.preferencias-lista {
+  margin-top: 6px;
+}
+
+.preferencias-card.desativado .preferencia-item,
+.preferencias-card.desativado .preference-item {
+  opacity: 0.55;
+}
+
+.preferencias-card.desativado .preference-icon {
+  background: #f2f2f4;
+  color: #a5abb4;
+}
+
+.preferencias-aviso {
+  margin: 14px 0 16px;
+
+  background: #fbf3ec;
+  border: 1px solid #f0dfcf;
+  color: #8a5a2b;
+
+  font-size: 0.78rem;
+  line-height: 1.45;
+
+  padding: 9px 12px;
+  border-radius: 8px;
+}
+
+/* ── Card de plano ── */
+.plano-meta {
+  margin-top: 6px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600;
+  color: #c85a12 !important;
+}
+
+.plano-card .plano-content {
+  align-items: flex-start;
+}
+
+.plano-card .manage-plan {
+  padding-top: 4px;
+}
+
+/* Em telas pequenas o cabeçalho do card quebra melhor */
+@media (max-width: 430px) {
+  .card-head {
+    flex-wrap: wrap;
+  }
+
+  .card-head-acoes {
+    margin-left: auto;
+  }
+}

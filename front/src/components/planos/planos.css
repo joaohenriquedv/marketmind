@@ -1,0 +1,627 @@
+/* ============================================================
+   planos.css — Página de Planos e assinatura
+   Todas as classes usam o prefixo `planos-` para não conflitar
+   com as classes da página de perfil.
+============================================================ */
+
+.planos-page {
+  min-height: 100vh;
+  background: #f7f7f5;
+
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.planos-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 26px 24px 60px;
+}
+
+/* ── Voltar ── */
+.planos-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  background: none;
+  border: none;
+
+  padding: 4px 2px;
+
+  color: #8a9099;
+
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.planos-voltar:hover {
+  color: #c85a12;
+}
+
+/* ── Cabeçalho ── */
+.planos-header {
+  margin: 16px 0 20px;
+  max-width: 620px;
+}
+
+.planos-header h1 {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #16181d;
+}
+
+.planos-header p {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #8a9099;
+}
+
+.planos-feedback {
+  margin-bottom: 18px;
+
+  background: #eef7f1;
+  border: 1px solid #cfe9d9;
+  color: #1a7f4b;
+
+  font-size: 0.84rem;
+  font-weight: 500;
+
+  padding: 10px 14px;
+  border-radius: 9px;
+}
+
+/* ── Resumo do plano atual ── */
+.planos-atual {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: #ffffff;
+  border: 1px solid #ececef;
+  border-radius: 12px;
+
+  padding: 18px 20px;
+}
+
+.planos-atual-icone {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #fdf3ea;
+  color: #c85a12;
+}
+
+.planos-atual-info {
+  min-width: 0;
+}
+
+.planos-rotulo {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a5abb4;
+}
+
+.planos-atual-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  margin-top: 3px;
+}
+
+.planos-atual-titulo h2 {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #16181d;
+}
+
+.planos-selo-status {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  color: #1a7f4b;
+  background: #eef7f1;
+
+  padding: 3px 7px;
+  border-radius: 5px;
+}
+
+.planos-atual-info p {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: #8a9099;
+}
+
+/* ── Alternância mensal / anual ── */
+.planos-ciclo {
+  display: inline-flex;
+  gap: 4px;
+
+  margin: 22px 0 18px;
+
+  background: #efefec;
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.planos-ciclo-opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border: none;
+  background: transparent;
+
+  padding: 8px 16px;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #657181;
+
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.planos-ciclo-opcao:hover {
+  color: #16181d;
+}
+
+.planos-ciclo-opcao.ativa {
+  background: #ffffff;
+  color: #16181d;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
+}
+
+.planos-ciclo-desconto {
+  font-size: 0.66rem;
+  font-weight: 700;
+
+  color: #1a7f4b;
+  background: #eef7f1;
+
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+/* ── Cards dos planos ── */
+.planos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.planos-oferta {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+  border: 1px solid #ececef;
+  border-radius: 14px;
+
+  padding: 22px 20px 24px;
+}
+
+.planos-oferta.destaque {
+  border-color: #f6c9a5;
+  box-shadow: 0 10px 30px -18px rgba(200, 90, 18, 0.45);
+}
+
+.planos-oferta.atual {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.1);
+}
+
+.planos-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  align-self: flex-start;
+
+  margin-bottom: 12px;
+
+  background: #fdf3ea;
+  color: #c85a12;
+
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.planos-selo-atual {
+  background: #eef7f1;
+  color: #1a7f4b;
+}
+
+.planos-oferta h2 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #16181d;
+}
+
+.planos-oferta-desc {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #8a9099;
+
+  min-height: 35px;
+}
+
+.planos-preco {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+
+  margin-top: 14px;
+}
+
+.planos-preco strong {
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #16181d;
+}
+
+.planos-preco span {
+  font-size: 0.82rem;
+  color: #8a9099;
+}
+
+.planos-preco-obs {
+  margin-top: 2px;
+  font-size: 0.74rem;
+  color: #a5abb4;
+}
+
+.planos-oferta-acao {
+  width: 100%;
+  height: 42px;
+
+  margin-top: 16px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #f47421;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.planos-oferta-acao:hover {
+  background: #e06a15;
+}
+
+.planos-oferta-acao.secundaria {
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  color: #3a3d44;
+}
+
+.planos-oferta-acao.secundaria:hover {
+  background: #fafafa;
+  border-color: #cfcfd6;
+}
+
+.planos-oferta-acao:disabled {
+  background: #f4f4f6;
+  border: 1px solid #ececef;
+  color: #a5abb4;
+  cursor: default;
+}
+
+.planos-recursos {
+  list-style: none;
+
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.planos-recursos li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  font-size: 0.81rem;
+  line-height: 1.4;
+  color: #5b6069;
+}
+
+.planos-recursos li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #1a7f4b;
+}
+
+/* ── Rodapé ── */
+.planos-garantia {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-top: 22px;
+  padding: 14px 16px;
+
+  background: #ffffff;
+  border: 1px solid #ececef;
+  border-radius: 10px;
+}
+
+.planos-garantia svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #c85a12;
+}
+
+.planos-garantia p {
+  font-size: 0.79rem;
+  line-height: 1.5;
+  color: #8a9099;
+}
+
+/* ── Modal ── */
+.planos-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(16, 24, 40, 0.45);
+  backdrop-filter: blur(2px);
+
+  z-index: 2000;
+}
+
+.planos-modal {
+  position: relative;
+
+  width: 100%;
+  max-width: 430px;
+
+  background: #ffffff;
+  border-radius: 14px;
+
+  padding: 24px;
+
+  box-shadow: 0 24px 60px -20px rgba(16, 24, 40, 0.4);
+}
+
+.planos-modal-fechar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: none;
+  border: none;
+  border-radius: 7px;
+
+  color: #a5abb4;
+  cursor: pointer;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.planos-modal-fechar:hover {
+  background: #f4f4f6;
+  color: #3a3d44;
+}
+
+.planos-modal h3 {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: #16181d;
+
+  padding-right: 28px;
+}
+
+.planos-modal-texto {
+  margin-top: 8px;
+
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #5b6069;
+}
+
+.planos-modal-texto strong {
+  color: #16181d;
+  font-weight: 600;
+}
+
+.planos-modal-resumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 16px;
+  padding: 12px 14px;
+
+  background: #fdf9f5;
+  border: 1px solid #f2e2d3;
+  border-radius: 9px;
+
+  font-size: 0.82rem;
+  color: #8a5a2b;
+}
+
+.planos-modal-resumo strong {
+  font-size: 0.95rem;
+  color: #c85a12;
+}
+
+.planos-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.planos-modal-cancelar,
+.planos-modal-confirmar {
+  height: 42px;
+  padding: 0 18px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.planos-modal-cancelar {
+  background: #ffffff;
+  border: 1px solid #e4e4e8;
+  color: #3a3d44;
+}
+
+.planos-modal-cancelar:hover {
+  background: #fafafa;
+  border-color: #cfcfd6;
+}
+
+.planos-modal-confirmar {
+  border: none;
+  background: #f47421;
+  color: #ffffff;
+}
+
+.planos-modal-confirmar:hover {
+  background: #e06a15;
+}
+
+.planos-modal-cancelar:disabled,
+.planos-modal-confirmar:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.planos-spin {
+  animation: planos-girar 0.9s linear infinite;
+}
+
+@keyframes planos-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+============================================================ */
+
+@media (max-width: 960px) {
+  .planos-grid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+
+  .planos-oferta-desc {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .planos-container {
+    padding: 20px 16px 48px;
+  }
+
+  .planos-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .planos-atual {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .planos-ciclo {
+    width: 100%;
+  }
+
+  .planos-ciclo-opcao {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .planos-grid {
+    max-width: 100%;
+  }
+
+  .planos-modal {
+    padding: 20px;
+  }
+
+  .planos-modal-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .planos-modal-cancelar,
+  .planos-modal-confirmar {
+    width: 100%;
+  }
+}

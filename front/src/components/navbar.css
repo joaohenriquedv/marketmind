@@ -1,34 +1,106 @@
-.mm-nav {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 48px; height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
-  position: sticky; top: 0; z-index: 100;
+/* ============================================================
+   navbar.css
+   Contém:
+   1) navbar fixa em todas as páginas (sticky)
+   2) menu do usuário (dropdown)
+   A base visual da navbar (.perfil-navbar, .perfil-menu, .perfil-actions,
+   .user-button, .new-report-button) está no perfil.css.
+============================================================ */
+
+/* ── 1) NAVBAR FIXA ──
+   `position: sticky` mantém a navbar no topo ao rolar, sem tirar ela
+   do fluxo: nenhuma página precisa de padding de compensação. */
+.perfil-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  /* sombra leve para separar do conteúdo ao rolar */
+  box-shadow: 0 1px 0 #e9edf2, 0 6px 14px -10px rgba(16, 24, 40, 0.16);
 }
- 
-.mm-nav-logo {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 1.15rem; font-weight: 800; color: #111; text-decoration: none;
+
+/* ── 2) MENU DO USUÁRIO ── */
+.navbar-user {
+  position: relative;
 }
-.mm-nav-logo span { color: #f47421; }
-.mm-nav-logo-icon { font-size: 1.3rem; }
- 
-.mm-nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.mm-nav-links a {
-  text-decoration: none; font-size: 0.9rem; font-weight: 500; color: #555;
-  transition: color 0.2s; position: relative;
+
+.navbar-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+
+  background: #ffffff;
+  border: 1px solid #ececef;
+  border-radius: 10px;
+
+  box-shadow: 0 8px 28px rgba(16, 24, 40, 0.12);
+
+  min-width: 200px;
+  padding: 6px;
+
+  /* acima da navbar sticky (z-index: 1000) para não ser cortado */
+  z-index: 1100;
 }
-.mm-nav-links a:hover { color: #111; }
-.mm-nav-links a.active { color: #f47421; font-weight: 600; }
-.mm-nav-links a.active::after {
-  content: ""; position: absolute; bottom: -22px; left: 0; right: 0;
-  height: 2px; background: #f47421; border-radius: 2px;
+
+.navbar-dropdown-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  background: none;
+  border: none;
+  border-radius: 7px;
+
+  text-align: left;
+  cursor: pointer;
+
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #3a3d44;
+
+  transition: background 0.15s ease, color 0.15s ease;
 }
- 
-.mm-nav-avatar-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.mm-nav-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: #f47421; color: #fff; font-weight: 700; font-size: 0.85rem;
-  display: flex; align-items: center; justify-content: center;
+
+.navbar-dropdown-item svg {
+  color: #a5abb4;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
 }
-.mm-nav-caret { color: #999; font-size: 0.7rem; }
+
+.navbar-dropdown-item:hover {
+  background: #f4f4f6;
+}
+
+.navbar-dropdown-item:hover svg {
+  color: #3a3d44;
+}
+
+.navbar-dropdown-item.sair {
+  color: #d64545;
+}
+
+.navbar-dropdown-item.sair svg {
+  color: #e08a8a;
+}
+
+.navbar-dropdown-item.sair:hover {
+  background: #fdeceb;
+}
+
+.navbar-dropdown-item.sair:hover svg {
+  color: #d64545;
+}
+
+.perfil-menu a {
+  cursor: pointer;
+}
+
+.perfil-menu a.ativo {
+  color: #f47421;
+  font-weight: 600;
+}

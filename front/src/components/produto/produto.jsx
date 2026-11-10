@@ -1,23 +1,63 @@
+
 import { useState, useEffect } from "react";
 import "./produto.css";
-import Navbar from "../navbar.jsx";
+import {
+  Store,
+  Pencil,
+  Trash2,
+  Plus,
+  X,
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
+  Package,
+} from "lucide-react";
 import SeletorNegocio from "../seletorneg";
 import NovoNegocio from "../novonegocio";
 import { listarNegociosUsuario as listarNegocios } from "../../api";
 
-const initialProdutos = [
-  
-];
-
-const tendenciaLabel = {
-  Estavel: { label: "→ Estável", cls: "estavel" },
-  Crescendo: { label: "→ Crescendo", cls: "crescendo" },
-  EmQueda: { label: "↘️ Em queda", cls: "emqueda" },
+const TENDENCIAS = {
+  Estavel: { label: "Estável", cls: "estavel", Icone: ArrowRight },
+  Crescendo: { label: "Crescendo", cls: "crescendo", Icone: TrendingUp },
+  EmQueda: { label: "Em queda", cls: "emqueda", Icone: TrendingDown },
 };
 
 function calcMargem(preco, custo) {
   if (!custo || custo <= 0) return null;
   return (((preco - custo) / preco) * 100).toFixed(1);
+}
+
+/* ── Persistência dos produtos por negócio ── */
+function chaveProdutos(negocioId) {
+  return `produtos_${negocioId}`;
+}
+
+function carregarProdutos(negocioId) {
+  if (negocioId == null) return [];
+  try {
+    const raw = localStorage.getItem(chaveProdutos(negocioId));
+    const v = raw ? JSON.parse(raw) : [];
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+function salvarProdutos(negocioId, lista) {
+  if (negocioId == null) return;
+  try {
+    localStorage.setItem(chaveProdutos(negocioId), JSON.stringify(lista));
+  } catch {
+    /* ignora falha de storage */
+  }
+}
+
+function normalizarListaNegocios(dados) {
+  if (!dados) return [];
+  const l = Array.isArray(dados)
+    ? dados
+    : dados.negocios || dados.data || dados.lista || [];
+  return Array.isArray(l) ? l : [];
 }
 
 function ModalNovoProduto({ onClose, onSalvar }) {
@@ -56,8 +96,8 @@ function ModalNovoProduto({ onClose, onSalvar }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Novo Produto</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
+          <button className="modal-close" onClick={onClose} aria-label="Fechar">
+            <X size={18} strokeWidth={2.2} />
           </button>
         </div>
         <div className="modal-body">
@@ -165,8 +205,8 @@ function ModalEditar({ produto, onClose, onSalvar }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Editar Produto</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
+          <button className="modal-close" onClick={onClose} aria-label="Fechar">
+            <X size={18} strokeWidth={2.2} />
           </button>
         </div>
         <div className="modal-body">
@@ -233,114 +273,174 @@ function ModalEditar({ produto, onClose, onSalvar }) {
   );
 }
 
-export default function Produtos({ onNavegar }) {
-  const [produtos, setProdutos] = useState(initialProdutos);
+export default function Produtos() {
+  const [produtos, setProdutos] = useState([]);
   const [modalNovo, setModalNovo] = useState(false);
   const [editando, setEditando] = useState(null);
 
-  // ── Negócios (agora vindos do banco de dados) ──
   const [negocios, setNegocios] = useState([]);
   const [ativoId, setAtivoId] = useState(null);
   const [showSeletor, setShowSeletor] = useState(false);
   const [showModalNegocio, setShowModalNegocio] = useState(false);
   const [carregandoNegocios, setCarregandoNegocios] = useState(true);
 
-  // Busca os negócios reais do usuário logado quando a página abre
   useEffect(() => {
-    async function carregarNegocios() {
-      const usuarioSalvo = localStorage.getItem("usuario");
-      if (!usuarioSalvo) {
-        setCarregandoNegocios(false);
-        return;
-      }
-      const usuario = JSON.parse(usuarioSalvo);
-      const lista = await listarNegocios(usuario.id);
+    let montado = true;
 
-      if (Array.isArray(lista)) {
+    (async () => {
+      try {
+        const usuarioSalvo = localStorage.getItem("usuario");
+        if (!usuarioSalvo) return;
+
+        const lista = normalizarListaNegocios(await listarNegocios());
+        if (!montado) return;
+
         setNegocios(lista);
-        if (lista.length > 0) setAtivoId(lista[0].id);
+        if (lista.length > 0) {
+          setAtivoId(lista[0].id);
+          setProdutos(carregarProdutos(lista[0].id));
+        }
+      } catch (error) {
+        console.error("Erro ao carregar negócios:", error);
+      } finally {
+        if (montado) setCarregandoNegocios(false);
       }
-      setCarregandoNegocios(false);
-    }
+    })();
 
-    carregarNegocios();
+    return () => {
+      montado = false;
+    };
   }, []);
 
   const negocioAtivo = negocios.find((n) => n.id === ativoId) || negocios[0];
+  const semNegocio = !carregandoNegocios && !negocioAtivo;
 
-  // Recarrega a lista de negócios do banco (chamado depois de cadastrar um novo)
+  function selecionarNegocio(valor) {
+    const id = valor && typeof valor === "object" ? valor.id : valor;
+    setAtivoId(id);
+    setProdutos(carregarProdutos(id));
+    setShowSeletor(false);
+  }
+
   async function recarregarNegocios(novoIdParaSelecionar) {
-    const usuarioSalvo = localStorage.getItem("usuario");
-    if (!usuarioSalvo) return;
-    const usuario = JSON.parse(usuarioSalvo);
-    const lista = await listarNegocios(usuario.id);
-
-    if (Array.isArray(lista)) {
+    try {
+      const lista = normalizarListaNegocios(await listarNegocios());
       setNegocios(lista);
-      if (novoIdParaSelecionar) setAtivoId(novoIdParaSelecionar);
+
+      const id =
+        novoIdParaSelecionar ??
+        (lista.some((n) => n.id === ativoId) ? ativoId : lista[0]?.id);
+
+      if (id != null) {
+        setAtivoId(id);
+        setProdutos(carregarProdutos(id));
+      }
+    } catch (error) {
+      console.error("Erro ao recarregar negócios:", error);
     }
   }
 
   function handleSalvarNegocio(form) {
-    // O modal NovoNegocio já salva no banco — aqui só recarregamos a lista
-    recarregarNegocios(form.id);
+    recarregarNegocios(form?.id);
   }
 
   function salvarNovo(p) {
-    setProdutos((prev) => [...prev, p]);
+    const lista = [...produtos, p];
+    setProdutos(lista);
+    salvarProdutos(ativoId, lista);
   }
 
   function salvarEdicao(p) {
-    setProdutos((prev) => prev.map((x) => (x.id === p.id ? p : x)));
+    const lista = produtos.map((x) => (x.id === p.id ? p : x));
+    setProdutos(lista);
+    salvarProdutos(ativoId, lista);
   }
 
   function deletar(id) {
-    setProdutos((prev) => prev.filter((x) => x.id !== id));
+    const lista = produtos.filter((x) => x.id !== id);
+    setProdutos(lista);
+    salvarProdutos(ativoId, lista);
   }
 
   return (
-    <>
-      <Navbar onNavegar={onNavegar} paginaAtiva="produto" />
-      <div className="produtos-page">
-        <div className="produtos-container">
-          <div className="produtos-header">
-            <div>
-              <h1>Produtos</h1>
-              <p>Gerencie seus produtos e serviços</p>
-            </div>
-            <div className="header-right">
-              {/* Seletor de negócio — posição relativa para o dropdown */}
-              <div style={{ position: "relative" }}>
-                <div
-                  className="negocio-select"
-                  onClick={() => setShowSeletor((v) => !v)}
-                >
-                  <span className="negocio-icon">🏪</span>
-                  <span>
-                    {carregandoNegocios
-                      ? "Carregando..."
-                      : negocioAtivo?.nome || "Nenhum negócio"}
-                  </span>
-                  <span className="select-arrow">{showSeletor ? "▴" : "▾"}</span>
-                </div>
-
-                {showSeletor && (
-                  <SeletorNegocio
-                    negocios={negocios}
-                    ativo={ativoId}
-                    onSelecionar={setAtivoId}
-                    onNovo={() => setShowModalNegocio(true)}
-                    onClose={() => setShowSeletor(false)}
-                  />
-                )}
-              </div>
-
-              <button className="btn-novo" onClick={() => setModalNovo(true)}>
-                + Novo Produto
-              </button>
-            </div>
+    <div className="produtos-page">
+      <div className="produtos-container">
+        <div className="produtos-header">
+          <div>
+            <h1>Produtos</h1>
+            <p>Gerencie seus produtos e serviços</p>
           </div>
 
+          <div className="header-right">
+            <div style={{ position: "relative" }}>
+              <div
+                className="negocio-select"
+                onClick={() => setShowSeletor((v) => !v)}
+              >
+                <span className="negocio-icon">
+                  <Store size={16} strokeWidth={2} />
+                </span>
+                <span>
+                  {carregandoNegocios
+                    ? "Carregando..."
+                    : negocioAtivo?.nome || "Nenhum negócio"}
+                </span>
+                <span className="select-arrow">
+                  {showSeletor ? "▴" : "▾"}
+                </span>
+              </div>
+
+              {showSeletor && (
+                <SeletorNegocio
+                  negocios={negocios}
+                  ativo={ativoId}
+                  onSelecionar={selecionarNegocio}
+                  onNovo={() => {
+                    setShowSeletor(false);
+                    setShowModalNegocio(true);
+                  }}
+                  onClose={() => setShowSeletor(false)}
+                />
+              )}
+            </div>
+
+            <button className="btn-novo" onClick={() => setModalNovo(true)}>
+              <Plus size={16} strokeWidth={2.4} />
+              Novo Produto
+            </button>
+          </div>
+        </div>
+
+        {produtos.length === 0 ? (
+          <div className="produtos-vazio">
+            <div className="produtos-vazio-icon">
+              {semNegocio ? (
+                <Store size={26} strokeWidth={1.8} />
+              ) : (
+                <Package size={26} strokeWidth={1.8} />
+              )}
+            </div>
+            <div className="produtos-vazio-title">
+              {semNegocio
+                ? "Você ainda não tem um negócio"
+                : "Nenhum produto cadastrado"}
+            </div>
+            <div className="produtos-vazio-text">
+              {semNegocio
+                ? "Cadastre um negócio para começar a gerenciar seus produtos."
+                : "Cadastre seus produtos para acompanhar receita, margem e tendência de vendas."}
+            </div>
+            <button
+              className="btn-novo"
+              onClick={() =>
+                semNegocio ? setShowModalNegocio(true) : setModalNovo(true)
+              }
+            >
+              <Plus size={16} strokeWidth={2.4} />
+              {semNegocio ? "Cadastrar negócio" : "Cadastrar produto"}
+            </button>
+          </div>
+        ) : (
           <div className="produtos-grid">
             {produtos.map((p) => {
               const margem = calcMargem(p.preco, p.precoCusto);
@@ -348,8 +448,8 @@ export default function Produtos({ onNavegar }) {
                 style: "currency",
                 currency: "BRL",
               });
-              const tend =
-                tendenciaLabel[p.tendencia] || tendenciaLabel.Estavel;
+              const tend = TENDENCIAS[p.tendencia] || TENDENCIAS.Estavel;
+              const TendIcone = tend.Icone;
 
               return (
                 <div key={p.id} className="produto-card">
@@ -364,8 +464,21 @@ export default function Produtos({ onNavegar }) {
                       <div className="card-categoria">{p.categoria}</div>
                     </div>
                     <div className="card-actions">
-                      <button onClick={() => setEditando(p)}>✏️</button>
-                      <button onClick={() => deletar(p.id)}>🗑️</button>
+                      <button
+                        type="button"
+                        onClick={() => setEditando(p)}
+                        title="Editar"
+                      >
+                        <Pencil size={16} strokeWidth={2} />
+                      </button>
+                      <button
+                        type="button"
+                        className="danger"
+                        onClick={() => deletar(p.id)}
+                        title="Excluir"
+                      >
+                        <Trash2 size={16} strokeWidth={2} />
+                      </button>
                     </div>
                   </div>
 
@@ -386,6 +499,7 @@ export default function Produtos({ onNavegar }) {
 
                   <div className="card-bottom">
                     <span className={`tendencia ${tend.cls}`}>
+                      <TendIcone size={14} strokeWidth={2.2} />
                       {tend.label}
                     </span>
                     {margem && (
@@ -396,28 +510,28 @@ export default function Produtos({ onNavegar }) {
               );
             })}
           </div>
-        </div>
-
-        {modalNovo && (
-          <ModalNovoProduto
-            onClose={() => setModalNovo(false)}
-            onSalvar={salvarNovo}
-          />
-        )}
-        {editando && (
-          <ModalEditar
-            produto={editando}
-            onClose={() => setEditando(null)}
-            onSalvar={salvarEdicao}
-          />
-        )}
-        {showModalNegocio && (
-          <NovoNegocio
-            onClose={() => setShowModalNegocio(false)}
-            onSalvar={handleSalvarNegocio}
-          />
         )}
       </div>
-    </>
+
+      {modalNovo && (
+        <ModalNovoProduto
+          onClose={() => setModalNovo(false)}
+          onSalvar={salvarNovo}
+        />
+      )}
+      {editando && (
+        <ModalEditar
+          produto={editando}
+          onClose={() => setEditando(null)}
+          onSalvar={salvarEdicao}
+        />
+      )}
+      {showModalNegocio && (
+        <NovoNegocio
+          onClose={() => setShowModalNegocio(false)}
+          onSalvar={handleSalvarNegocio}
+        />
+      )}
+    </div>
   );
 }

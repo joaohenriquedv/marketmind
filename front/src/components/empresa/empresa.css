@@ -1,5 +1,6 @@
- @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"); 
- 
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
 *,
 *::before,
 *::after {
@@ -7,17 +8,17 @@
   margin: 0;
   padding: 0;
 }
- 
+
 body {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
- 
+
 /* ── Layout ── */
 .mm-page {
   display: flex;
   min-height: 100vh;
 }
- 
+
 /* ── Left panel ── */
 .mm-left {
   flex: 0.6;
@@ -29,7 +30,7 @@ body {
   overflow: hidden;
   background: #faf9f7;
 }
- 
+
 .mm-left::before {
   content: "";
   position: absolute;
@@ -41,7 +42,7 @@ body {
   border-radius: 50%;
   pointer-events: none;
 }
- 
+
 .mm-left::after {
   content: "";
   position: absolute;
@@ -53,75 +54,110 @@ body {
   border-radius: 50%;
   pointer-events: none;
 }
- 
+
 .mm-logo {
+  position: relative;
+  z-index: 1;
   font-size: 2.2rem;
   font-weight: 800;
   color: #111;
   margin-bottom: 48px;
   letter-spacing: -0.5px;
 }
- 
+
 .mm-logo span {
   color: #f47421;
 }
- 
+
 .mm-tagline {
+  position: relative;
+  z-index: 1;
   font-size: 2.6rem;
   font-weight: 700;
   color: #111;
   line-height: 1.15;
   letter-spacing: -1px;
 }
- 
+
 .mm-tagline em {
   color: #f47421;
   font-style: italic;
 }
- 
+
 .mm-deco-line {
+  position: relative;
+  z-index: 1;
   margin-top: 40px;
   width: 48px;
   height: 4px;
   background: #f47421;
   border-radius: 2px;
 }
- 
+
+/* Lista de benefícios (preenche o painel esquerdo) */
+.mm-benefits {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mm-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #5b564f;
+}
+
+.mm-benefits li svg {
+  color: #f47421;
+  flex-shrink: 0;
+}
+
 /* ── Right panel ── */
 .mm-right {
   flex: 0.4;
   width: auto;
   background: #fff;
+
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
+  justify-content: flex-start;   /* puxa o conteúdo para a esquerda */
+
+  padding: 44px 48px 44px 64px;
   box-shadow: -8px 0 48px rgba(0, 0, 0, 0.06);
+  overflow-y: auto;
 }
- 
+
 .mm-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 430px;
+  margin: auto 0;
 }
- 
+
 /* ── Stepper ── */
 .mm-stepper {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
- 
+
 .mm-step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
- 
+
 .mm-step-circle {
-  width: 26px;
-  height: 26px;
+  width: 27px;
+  height: 27px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -129,127 +165,139 @@ body {
   font-size: 0.72rem;
   font-weight: 700;
 }
- 
+
 .mm-step-circle.done {
   background: #f47421;
   color: #fff;
 }
- 
+
 .mm-step-circle.active {
   background: #f47421;
   color: #fff;
-  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.2);
+  box-shadow: 0 0 0 4px rgba(244, 116, 33, 0.18);
 }
- 
+
 .mm-step-circle.idle {
   background: #e8e6e3;
   color: #999;
 }
- 
+
 .mm-step-label {
   font-size: 0.65rem;
   color: #aaa;
   font-weight: 500;
 }
- 
+
 .mm-step-label.active {
   color: #f47421;
 }
- 
+
 .mm-step-connector {
-  width: 32px;
+  width: 34px;
   height: 2px;
   background: #e8e6e3;
-  margin-bottom: 18px;
+  margin: 0 4px 19px;
+  border-radius: 2px;
 }
- 
+
 .mm-step-connector.done {
   background: #f47421;
 }
- 
+
 /* ── Form title ── */
 .mm-title {
   font-size: 1.55rem;
   font-weight: 800;
   color: #111;
   letter-spacing: -0.4px;
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
- 
+
 /* ── Fields ── */
 .mm-fields {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 22px;
+  gap: 13px;
+  margin-bottom: 24px;
 }
- 
+
 .mm-field {
   position: relative;
   display: flex;
   align-items: center;
   border: 1.5px solid #e5e3e0;
-  border-radius: 10px;
+  border-radius: 11px;
   background: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
   overflow: hidden;
 }
- 
+
 .mm-field:focus-within {
   border-color: #f47421;
   box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.1);
 }
- 
+
 .mm-field-icon {
-  padding: 0 12px;
-  color: #bbb;
-  font-size: 1rem;
+  padding: 0 11px;
+  color: #b8b8b8;
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  transition: color 0.2s;
 }
- 
+
+.mm-field:focus-within .mm-field-icon {
+  color: #f47421;
+}
+
 .mm-field input,
 .mm-field select {
   flex: 1;
   border: none;
   outline: none;
   background: transparent;
-  padding: 13px 12px 13px 0;
+  padding: 14px 12px 14px 0;
   font-size: 0.88rem;
   color: #333;
   font-family: inherit;
   font-weight: 500;
   -webkit-appearance: none;
+  min-width: 0;
 }
- 
+
+.mm-field select {
+  cursor: pointer;
+}
+
 .mm-field input::placeholder {
   color: #bbb;
   font-weight: 400;
 }
- 
+
 .mm-field-arrow {
-  padding: 0 12px;
+  padding: 0 13px;
   color: #bbb;
-  font-size: 0.75rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
 }
- 
+
 .mm-row {
   display: flex;
-  gap: 10px;
+  gap: 13px;
 }
- 
+
 .mm-row .mm-field {
   flex: 1;
 }
- 
+
 .mm-textarea {
   width: 100%;
   border: 1.5px solid #e5e3e0;
-  border-radius: 10px;
+  border-radius: 11px;
   background: #fff;
-  padding: 13px 14px;
+  padding: 14px;
   font-size: 0.88rem;
   color: #333;
   font-family: inherit;
@@ -257,49 +305,54 @@ body {
   outline: none;
   resize: none;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-height: 72px;
+  min-height: 76px;
 }
- 
+
 .mm-textarea::placeholder {
   color: #bbb;
   font-weight: 400;
 }
- 
+
 .mm-textarea:focus {
   border-color: #f47421;
   box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.1);
 }
- 
+
 /* ── Buttons ── */
 .mm-btn-row {
   display: flex;
-  gap: 10px;
+  gap: 11px;
 }
- 
+
 .mm-btn-back {
   flex: 0 0 auto;
-  padding: 13px 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px 20px;
   border: 1.5px solid #e5e3e0;
-  border-radius: 10px;
+  border-radius: 11px;
   background: #fff;
   color: #555;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
- 
+
 .mm-btn-back:hover {
   border-color: #ccc;
   color: #111;
+  background: #faf9f7;
 }
- 
+
 .mm-btn-submit {
   flex: 1;
-  padding: 13px 22px;
+  padding: 14px 22px;
   border: none;
-  border-radius: 10px;
+  border-radius: 11px;
   background: #f47421;
   color: #fff;
   font-family: inherit;
@@ -309,15 +362,64 @@ body {
   transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
   letter-spacing: 0.01em;
 }
- 
+
 .mm-btn-submit:hover {
   background: #e0641a;
   box-shadow: 0 4px 16px rgba(244, 116, 33, 0.3);
   transform: translateY(-1px);
 }
- 
+
 .mm-btn-submit:active {
   transform: translateY(0);
+}
+
+.mm-btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Botão "Continuar com usuário" (opção secundária) */
+.mm-btn-skip {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  color: #7b8794;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.mm-btn-skip:hover {
+  background: #faf6f2;
+  color: #f47421;
+}
+
+/* ── Erro ── */
+.mm-erro-box {
+  background: #fef1f0;
+  border: 1px solid #f8c5c1;
+  color: #c0392b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 /* ── Responsivo ── */
@@ -327,7 +429,6 @@ body {
     min-height: 100vh;
   }
 
-  /* Painel esquerdo vira header */
   .mm-left {
     padding: 32px 28px 28px;
     flex: none;
@@ -346,40 +447,30 @@ body {
     margin-top: 20px;
   }
 
-  /* Painel direito ocupa o resto */
+  .mm-benefits {
+    margin-top: 24px;
+    gap: 11px;
+  }
+
+  .mm-benefits li {
+    font-size: 0.85rem;
+  }
+
   .mm-right {
     width: 100%;
     padding: 28px 20px 40px;
     box-shadow: none;
     align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .mm-card {
     max-width: 100%;
   }
+}
 
-  /* Estado + Cidade empilham em telas muito pequenas */
-  @media (max-width: 380px) {
-    .mm-row {
-      flex-direction: column;
-    }
+@media (max-width: 380px) {
+  .mm-row {
+    flex-direction: column;
   }
-}
-
-/* ── Mensagem de erro — adicione isso no final do empresa.css ── */
-.mm-erro-box {
-  background: #fef1f0;
-  border: 1px solid #f8c5c1;
-  color: #c0392b;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.mm-btn-submit:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }

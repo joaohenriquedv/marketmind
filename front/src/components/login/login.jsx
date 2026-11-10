@@ -1,13 +1,32 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./login.css";
+import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight } from "lucide-react";
 import { loginUsuario } from "../../api";
 
 function Login({ onNavegar, onIrParaCadastro }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  const pageRef = useRef(null);
+
+  /* Brilho que segue o mouse */
+  useEffect(() => {
+    const el = pageRef.current;
+    if (!el) return;
+
+    function mover(evento) {
+      const caixa = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${evento.clientX - caixa.left}px`);
+      el.style.setProperty("--my", `${evento.clientY - caixa.top}px`);
+    }
+
+    el.addEventListener("mousemove", mover);
+    return () => el.removeEventListener("mousemove", mover);
+  }, []);
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -20,7 +39,7 @@ function Login({ onNavegar, onIrParaCadastro }) {
     try {
       const resposta = await loginUsuario({
         email: email.trim(),
-        senha
+        senha,
       });
 
       if (!resposta.token || !resposta.usuario) {
@@ -29,39 +48,29 @@ function Login({ onNavegar, onIrParaCadastro }) {
         );
       }
 
-      // Salva o token
-      localStorage.setItem(
-        "token",
-        resposta.token
-      );
+      localStorage.setItem("token", resposta.token);
+      localStorage.setItem("usuario", JSON.stringify(resposta.usuario));
 
-      // Salva o usuário
-      localStorage.setItem(
-        "usuario",
-        JSON.stringify(resposta.usuario)
-      );
-
-      // Redireciona de acordo com o tipo
       if (resposta.usuario.tipo === "admin") {
         onNavegar("admin");
       } else {
         onNavegar("principal");
       }
-
     } catch (error) {
-      console.error("Erro no login:", error);
-
-      setErro(
-        error.message ||
-        "Não foi possível fazer login."
-      );
+      setErro(error.message || "Não foi possível fazer login.");
     } finally {
       setCarregando(false);
     }
   }
 
   return (
-    <div className="page">
+    <div className="page" ref={pageRef}>
+      <div className="bg-blobs" aria-hidden="true">
+        <span className="blob blob-1" />
+        <span className="blob blob-2" />
+        <span className="blob blob-3" />
+      </div>
+
       <div className="login-container">
         <div className="left-panel">
           <h1 className="logo fade-down">
@@ -93,11 +102,14 @@ function Login({ onNavegar, onIrParaCadastro }) {
             {erro && <div className="erro-box">{erro}</div>}
 
             <div className="input-group">
-              <span className="input-icon">✉</span>
+              <span className="input-icon">
+                <Mail size={17} strokeWidth={2} />
+              </span>
               <input
                 id="email"
                 type="email"
                 placeholder="Digite seu e-mail"
+                autoComplete="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
@@ -105,23 +117,42 @@ function Login({ onNavegar, onIrParaCadastro }) {
             </div>
 
             <div className="input-group">
-              <span className="input-icon">🔒</span>
+              <span className="input-icon">
+                <Lock size={17} strokeWidth={2} />
+              </span>
               <input
                 id="senha"
-                type="password"
+                type={mostrarSenha ? "text" : "password"}
                 placeholder="Digite sua senha"
+                autoComplete="current-password"
                 value={senha}
                 onChange={(event) => setSenha(event.target.value)}
+                className="com-toggle"
                 required
               />
+              <button
+                type="button"
+                className="toggle-senha"
+                onClick={() => setMostrarSenha((v) => !v)}
+                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {mostrarSenha ? (
+                  <EyeOff size={17} strokeWidth={2} />
+                ) : (
+                  <Eye size={17} strokeWidth={2} />
+                )}
+              </button>
             </div>
 
-            <button
-              type="submit"
-              className="login-btn"
-              disabled={carregando}
-            >
-              {carregando ? "Entrando..." : "Entrar"}
+            <button type="submit" className="login-btn" disabled={carregando}>
+              {carregando ? (
+                "Entrando..."
+              ) : (
+                <>
+                  <LogIn size={17} strokeWidth={2.2} />
+                  Entrar
+                </>
+              )}
             </button>
 
             <div className="divider">
@@ -141,7 +172,8 @@ function Login({ onNavegar, onIrParaCadastro }) {
                 className="link-btn"
                 onClick={() => onIrParaCadastro && onIrParaCadastro()}
               >
-                Criar conta →
+                Criar conta
+                <ArrowRight size={16} strokeWidth={2.4} />
               </button>
             </div>
           </form>

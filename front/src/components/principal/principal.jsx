@@ -1,19 +1,20 @@
+
 import "./principal.css";
 
+export default function HeroSection({ onNavegar }) {
+  function irParaDashboard(e) {
+    e.preventDefault();
+    if (onNavegar) onNavegar("dashboard");
+  }
 
-export default function HeroSection() {
   return (
     <>
-    
-
-      {/* resto do Hero sem mudança... */}
-
       {/* ── HERO ── */}
       <section className="mm-hero">
         {/* Left */}
         <div className="mm-hero-left">
           <div className="mm-hero-badge">
-            <span>✳️</span> Plataforma completa de gestão
+         
           </div>
 
           <h1 className="mm-hero-title">
@@ -29,9 +30,9 @@ export default function HeroSection() {
             poderosa.
           </p>
 
-          <a href="#" className="mm-hero-cta">
-            Acessar Dashboard →
-          </a>
+          <a href="#" className="mm-hero-cta" onClick={irParaDashboard}>
+            Acessar Dashboard
+          </a> 
 
           <div className="mm-hero-features">
             <div className="mm-hero-feature">
