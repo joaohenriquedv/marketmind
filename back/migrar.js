@@ -15,6 +15,11 @@ async function migrar() {
     nome: "usuarios.foto",
     sql: "ALTER TABLE usuarios ADD COLUMN foto LONGTEXT NULL",
   },
+
+  {
+  nome: "preferencias_usuario",
+  sql: "CREATE TABLE IF NOT EXISTS preferencias_usuario (usuario_id BIGINT NOT NULL PRIMARY KEY, dados JSON NOT NULL, atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)",
+},  
 ];
 
   for (const a of alteracoes) {
@@ -32,6 +37,8 @@ async function migrar() {
 
   console.log("\nMigração concluída.");
   process.exit(0);
+
+  
 }
 
 migrar();

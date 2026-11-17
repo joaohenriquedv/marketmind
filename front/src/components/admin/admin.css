@@ -585,3 +585,368 @@
     padding: 12px 10px;
   }
 }
+
+/* ===========================================================
+   Admin — gerenciar negócios (editar / excluir)
+   Cole no FIM do admin.css
+   =========================================================== */
+
+/* ações dentro do card do negócio */
+.adm-negocio-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f2efec;
+}
+
+.adm-btn-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 7px 11px;
+
+  background: #fff;
+  border: 1px solid #e6e2dc;
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4b5563;
+
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.adm-btn-acao:hover {
+  border-color: #f6d0b3;
+  background: #fff7f0;
+  color: #b7540f;
+}
+
+.adm-btn-acao.perigo { color: #c0392b; }
+.adm-btn-acao.perigo:hover {
+  border-color: #f6c9c5;
+  background: #fdeceb;
+  color: #a32e21;
+}
+
+/* busca no cabeçalho empurra para a direita */
+.adm-card-head .adm-busca { margin-left: auto; }
+
+/* ───────── MODAL ───────── */
+.adm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  padding: 24px 16px;
+  overflow-y: auto;
+
+  background: rgba(18, 18, 20, 0.5);
+  backdrop-filter: blur(3px);
+
+  animation: admOverlay 0.16s ease both;
+}
+
+.adm-modal {
+  width: 100%;
+  max-width: 560px;
+  margin: auto;
+
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+
+  box-shadow: 0 30px 70px -20px rgba(16, 24, 40, 0.45);
+  animation: admModal 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.adm-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 18px 20px;
+  border-bottom: 1px solid #f2efec;
+  background: #fcfbfa;
+}
+
+.adm-modal-head h2 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #16181d;
+}
+
+.adm-modal-head p {
+  margin: 3px 0 0;
+  font-size: 0.78rem;
+  color: #8a9099;
+}
+
+.adm-modal-fechar {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #9ca3af;
+
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.adm-modal-fechar:hover {
+  background: #f1efec;
+  color: #4b5563;
+}
+
+.adm-modal-erro {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+
+  background: #fdeceb;
+  border: 1px solid #f6c9c5;
+  border-radius: 9px;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #c0392b;
+}
+
+.adm-modal-body { padding: 18px 20px 20px; }
+
+.adm-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+}
+
+.adm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.adm-campo.full { grid-column: 1 / -1; }
+
+.adm-campo span {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #37404a;
+}
+
+.adm-campo input {
+  width: 100%;
+  padding: 9px 11px;
+
+  border: 1px solid #ded9d2;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: #16181d;
+  outline: none;
+  background: #fff;
+
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.adm-campo input:focus {
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.14);
+}
+
+.adm-campo input:disabled {
+  background: #f7f6f4;
+  color: #8a9099;
+}
+
+.adm-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.adm-btn-neutro,
+.adm-btn-primario,
+.adm-btn-perigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 10px 16px;
+  border: none;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.adm-btn-neutro { background: #f2f1ef; color: #4b5563; }
+.adm-btn-neutro:hover:not(:disabled) { background: #e8e6e3; }
+
+.adm-btn-primario { background: #f47421; color: #fff; }
+.adm-btn-primario:hover:not(:disabled) {
+  background: #e0641a;
+  transform: translateY(-1px);
+}
+
+.adm-btn-perigo { background: #d64541; color: #fff; }
+.adm-btn-perigo:hover:not(:disabled) {
+  background: #bc3a36;
+  transform: translateY(-1px);
+}
+
+.adm-btn-neutro:disabled,
+.adm-btn-primario:disabled,
+.adm-btn-perigo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* confirmação de exclusão */
+.adm-confirma-texto {
+  margin: 0 0 10px;
+  font-size: 0.94rem;
+  color: #16181d;
+}
+
+.adm-confirma-lista {
+  margin: 0;
+  padding-left: 18px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.adm-confirma-lista li::marker { color: #d64541; }
+
+/* ───────── ANIMAÇÕES ───────── */
+@keyframes admOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes admModal {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ───────── RESPONSIVO ───────── */
+@media (max-width: 560px) {
+  .adm-modal-overlay { padding: 12px; }
+  .adm-modal { border-radius: 13px; }
+  .adm-modal-grid { grid-template-columns: 1fr; }
+  .adm-modal-acoes { flex-direction: column-reverse; }
+  .adm-btn-neutro,
+  .adm-btn-primario,
+  .adm-btn-perigo { width: 100%; }
+
+  .adm-campo input { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-modal-overlay,
+  .adm-modal { animation: none; }
+  .adm-btn-primario:hover:not(:disabled),
+  .adm-btn-perigo:hover:not(:disabled) { transform: none; }
+}
+
+/* ===========================================================
+   Indicadores financeiros — Receita / Lucro / Margem
+   Cole no FIM do admin.css e do dashboard.css
+   (os dois usam blocos diferentes, nada colide)
+   =========================================================== */
+
+/* ───────── ADMIN: card do negócio ───────── */
+.adm-negocio-fin {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  margin-top: 12px;
+  padding: 11px 12px;
+
+  background: #faf9f7;
+  border: 1px solid #f2efec;
+  border-radius: 10px;
+}
+
+.adm-negocio-fin > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.adm-negocio-fin span {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a3a8ae;
+}
+
+.adm-negocio-fin strong {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #16181d;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-negocio-fin strong.ok { color: #15803d; }
+.adm-negocio-fin strong.atencao { color: #b45309; }
+.adm-negocio-fin strong.ruim { color: #b91c1c; }
+
+.adm-negocio-fonte {
+  margin-top: 7px;
+  font-size: 0.66rem;
+  color: #a3a8ae;
+}
+
+/* ───────── DASHBOARD: nota de origem ───────── */
+.db-fonte {
+  margin: -4px 0 16px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+@media (max-width: 560px) {
+  .adm-negocio-fin {
+    grid-template-columns: 1fr 1fr;
+  }
+}

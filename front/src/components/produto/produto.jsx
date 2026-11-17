@@ -14,7 +14,13 @@ import {
 } from "lucide-react";
 import SeletorNegocio from "../seletorneg";
 import NovoNegocio from "../novonegocio";
-import { listarNegociosUsuario as listarNegocios } from "../../api";
+import {
+  listarNegociosUsuario as listarNegocios,
+  listarProdutos as listarProdutosApi,
+  criarProduto,
+  atualizarProduto,
+  deletarProduto,
+} from "../../api";
 
 const TENDENCIAS = {
   Estavel: { label: "Estável", cls: "estavel", Icone: ArrowRight },
@@ -27,15 +33,16 @@ function calcMargem(preco, custo) {
   return (((preco - custo) / preco) * 100).toFixed(1);
 }
 
-/* ── Persistência dos produtos por negócio ── */
-function chaveProdutos(negocioId) {
+/* ── Cache local: usado SOMENTE para migrar produtos antigos ──
+   A fonte da verdade agora é o banco (API). */
+function chaveCache(negocioId) {
   return `produtos_${negocioId}`;
 }
 
-function carregarProdutos(negocioId) {
+function lerCache(negocioId) {
   if (negocioId == null) return [];
   try {
-    const raw = localStorage.getItem(chaveProdutos(negocioId));
+    const raw = localStorage.getItem(chaveCache(negocioId));
     const v = raw ? JSON.parse(raw) : [];
     return Array.isArray(v) ? v : [];
   } catch {
@@ -43,13 +50,47 @@ function carregarProdutos(negocioId) {
   }
 }
 
-function salvarProdutos(negocioId, lista) {
-  if (negocioId == null) return;
+function limparCache(negocioId) {
   try {
-    localStorage.setItem(chaveProdutos(negocioId), JSON.stringify(lista));
+    localStorage.removeItem(chaveCache(negocioId));
   } catch {
-    /* ignora falha de storage */
+    /* ignora */
   }
+}
+
+/* Produto da API → formato da tela (aceita camelCase e snake_case) */
+function normalizarProdutoApi(p) {
+  if (!p) return null;
+  const bruto = String(p.tendencia || p.trend || "").toLowerCase();
+  const tendencia = bruto.includes("qued")
+    ? "EmQueda"
+    : bruto.includes("cresc")
+      ? "Crescendo"
+      : "Estavel";
+
+  return {
+    id: p.id,
+    nome: p.nome ?? "Produto",
+    categoria: p.categoria ?? "",
+    preco: Number(p.preco ?? p.preco_venda ?? 0),
+    precoCusto: Number(p.precoCusto ?? p.preco_custo ?? p.custo ?? 0),
+    vendas: Number(p.vendas ?? p.vendas_mes ?? 0),
+    tendencia,
+    estrategico: Boolean(p.estrategico),
+  };
+}
+
+/* Formato da tela → corpo aceito pelo back */
+function paraPayload(p) {
+  return {
+    nome: String(p.nome || "").trim(),
+    categoria: p.categoria || "",
+    preco: Number(p.preco) || 0,
+    precoCusto: Number(p.precoCusto) || 0,
+    vendas: Number(p.vendas) || 0,
+    tendencia: p.tendencia || "Estavel",
+    estrategico: Boolean(p.estrategico),
+  };
 }
 
 function normalizarListaNegocios(dados) {
@@ -70,15 +111,17 @@ function ModalNovoProduto({ onClose, onSalvar }) {
     tendencia: "Estavel",
     estrategico: false,
   });
+  const [salvando, setSalvando] = useState(false);
 
   function handle(e) {
     const { name, value, type, checked } = e.target;
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   }
 
-  function submit() {
-    if (!form.nome) return;
-    onSalvar({
+  async function submit() {
+    if (!form.nome || salvando) return;
+    setSalvando(true);
+    const ok = await onSalvar({
       id: Date.now(),
       nome: form.nome,
       categoria: form.categoria,
@@ -88,7 +131,8 @@ function ModalNovoProduto({ onClose, onSalvar }) {
       tendencia: form.tendencia,
       estrategico: form.estrategico,
     });
-    onClose();
+    setSalvando(false);
+    if (ok !== false) onClose();
   }
 
   return (
@@ -162,8 +206,8 @@ function ModalNovoProduto({ onClose, onSalvar }) {
             <span>Produto Estratégico</span>
           </div>
         </div>
-        <button className="btn-salvar" onClick={submit}>
-          Criar Produto
+        <button className="btn-salvar" onClick={submit} disabled={salvando}>
+          {salvando ? "Salvando..." : "Criar Produto"}
         </button>
       </div>
     </div>
@@ -180,14 +224,17 @@ function ModalEditar({ produto, onClose, onSalvar }) {
     tendencia: produto.tendencia,
     estrategico: produto.estrategico,
   });
+  const [salvando, setSalvando] = useState(false);
 
   function handle(e) {
     const { name, value, type, checked } = e.target;
     setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
   }
 
-  function submit() {
-    onSalvar({
+  async function submit() {
+    if (salvando) return;
+    setSalvando(true);
+    const ok = await onSalvar({
       ...produto,
       nome: form.nome,
       categoria: form.categoria,
@@ -197,7 +244,8 @@ function ModalEditar({ produto, onClose, onSalvar }) {
       tendencia: form.tendencia,
       estrategico: form.estrategico,
     });
-    onClose();
+    setSalvando(false);
+    if (ok !== false) onClose();
   }
 
   return (
@@ -265,8 +313,8 @@ function ModalEditar({ produto, onClose, onSalvar }) {
             <span>Produto Estratégico</span>
           </div>
         </div>
-        <button className="btn-salvar" onClick={submit}>
-          Salvar
+        <button className="btn-salvar" onClick={submit} disabled={salvando}>
+          {salvando ? "Salvando..." : "Salvar"}
         </button>
       </div>
     </div>
@@ -283,7 +331,10 @@ export default function Produtos() {
   const [showSeletor, setShowSeletor] = useState(false);
   const [showModalNegocio, setShowModalNegocio] = useState(false);
   const [carregandoNegocios, setCarregandoNegocios] = useState(true);
+  const [carregandoProdutos, setCarregandoProdutos] = useState(true);
+  const [erroSync, setErroSync] = useState("");
 
+  /* Negócios do usuário */
   useEffect(() => {
     let montado = true;
 
@@ -296,12 +347,9 @@ export default function Produtos() {
         if (!montado) return;
 
         setNegocios(lista);
-        if (lista.length > 0) {
-          setAtivoId(lista[0].id);
-          setProdutos(carregarProdutos(lista[0].id));
-        }
+        if (lista.length > 0) setAtivoId(lista[0].id);
       } catch (error) {
-        console.error("Erro ao carregar negócios:", error);
+        if (montado) setErroSync(error.message || "Não foi possível carregar seus negócios.");
       } finally {
         if (montado) setCarregandoNegocios(false);
       }
@@ -312,13 +360,70 @@ export default function Produtos() {
     };
   }, []);
 
+  /* Produtos do negócio ativo — direto do banco.
+     Na primeira vez, migra o que existia só no navegador. */
+  useEffect(() => {
+    if (ativoId == null) return undefined;
+
+    let montado = true;
+
+    (async () => {
+      try {
+        let lista = await listarProdutosApi(ativoId);
+        lista = Array.isArray(lista) ? lista : [];
+
+        if (lista.length === 0) {
+          const antigos = lerCache(ativoId);
+
+          if (antigos.length > 0) {
+            const migrados = [];
+
+            for (const antigo of antigos) {
+              try {
+                const resposta = await criarProduto(ativoId, paraPayload(antigo));
+                const criado = normalizarProdutoApi(resposta?.produto ?? resposta);
+                if (criado) migrados.push(criado);
+              } catch {
+                /* item inválido: segue com os outros */
+              }
+            }
+
+            if (migrados.length > 0) {
+              lista = migrados;
+              limparCache(ativoId);
+            }
+          }
+        }
+
+        if (montado) {
+          setProdutos(lista.map(normalizarProdutoApi).filter(Boolean));
+          setErroSync("");
+        }
+      } catch (error) {
+        if (montado) {
+          setProdutos([]);
+          setErroSync(
+            error.message || "Não foi possível carregar os produtos do servidor."
+          );
+        }
+      } finally {
+        if (montado) setCarregandoProdutos(false);
+      }
+    })();
+
+    return () => {
+      montado = false;
+    };
+  }, [ativoId]);
+
   const negocioAtivo = negocios.find((n) => n.id === ativoId) || negocios[0];
   const semNegocio = !carregandoNegocios && !negocioAtivo;
 
   function selecionarNegocio(valor) {
     const id = valor && typeof valor === "object" ? valor.id : valor;
+    setCarregandoProdutos(true);
     setAtivoId(id);
-    setProdutos(carregarProdutos(id));
+    setProdutos([]);
     setShowSeletor(false);
   }
 
@@ -332,11 +437,11 @@ export default function Produtos() {
         (lista.some((n) => n.id === ativoId) ? ativoId : lista[0]?.id);
 
       if (id != null) {
+        setCarregandoProdutos(true);
         setAtivoId(id);
-        setProdutos(carregarProdutos(id));
       }
     } catch (error) {
-      console.error("Erro ao recarregar negócios:", error);
+      setErroSync(error.message || "Não foi possível recarregar os negócios.");
     }
   }
 
@@ -344,22 +449,51 @@ export default function Produtos() {
     recarregarNegocios(form?.id);
   }
 
-  function salvarNovo(p) {
-    const lista = [...produtos, p];
-    setProdutos(lista);
-    salvarProdutos(ativoId, lista);
+  async function salvarNovo(p) {
+    if (ativoId == null) {
+      setErroSync("Selecione um negócio antes de cadastrar o produto.");
+      return false;
+    }
+
+    try {
+      const resposta = await criarProduto(ativoId, paraPayload(p));
+      const criado = normalizarProdutoApi(resposta?.produto ?? resposta);
+
+      if (criado) setProdutos((atual) => [criado, ...atual]);
+      setErroSync("");
+      return true;
+    } catch (error) {
+      setErroSync(error.message || "Não foi possível salvar o produto.");
+      return false;
+    }
   }
 
-  function salvarEdicao(p) {
-    const lista = produtos.map((x) => (x.id === p.id ? p : x));
-    setProdutos(lista);
-    salvarProdutos(ativoId, lista);
+  async function salvarEdicao(p) {
+    try {
+      const resposta = await atualizarProduto(ativoId, p.id, paraPayload(p));
+      const atualizado = normalizarProdutoApi(resposta?.produto ?? resposta);
+
+      setProdutos((atual) =>
+        atual.map((x) =>
+          String(x.id) === String(p.id) ? atualizado || { ...x, ...p } : x
+        )
+      );
+      setErroSync("");
+      return true;
+    } catch (error) {
+      setErroSync(error.message || "Não foi possível atualizar o produto.");
+      return false;
+    }
   }
 
-  function deletar(id) {
-    const lista = produtos.filter((x) => x.id !== id);
-    setProdutos(lista);
-    salvarProdutos(ativoId, lista);
+  async function deletar(id) {
+    try {
+      await deletarProduto(ativoId, id);
+      setProdutos((atual) => atual.filter((x) => String(x.id) !== String(id)));
+      setErroSync("");
+    } catch (error) {
+      setErroSync(error.message || "Não foi possível excluir o produto.");
+    }
   }
 
   return (
@@ -411,7 +545,36 @@ export default function Produtos() {
           </div>
         </div>
 
-        {produtos.length === 0 ? (
+        {erroSync && (
+          <div
+            className="produtos-aviso-erro"
+            role="alert"
+            style={{
+              margin: "0 0 16px",
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: "#fdeceb",
+              border: "1px solid #f6c9c5",
+              color: "#c0392b",
+              fontSize: 13,
+              lineHeight: 1.5,
+            }}
+          >
+            {erroSync}
+          </div>
+        )}
+
+        {carregandoProdutos ? (
+          <div className="produtos-carregando">
+            <div className="produtos-vazio-icon">
+              <Package size={26} strokeWidth={1.8} />
+            </div>
+            <div className="produtos-vazio-title">Carregando produtos...</div>
+            <div className="produtos-vazio-text">
+              Buscando os produtos cadastrados no seu negócio.
+            </div>
+          </div>
+        ) : produtos.length === 0 ? (
           <div className="produtos-vazio">
             <div className="produtos-vazio-icon">
               {semNegocio ? (

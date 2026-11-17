@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import "./perfil.css";
 import {
@@ -55,6 +54,18 @@ const ESTADOS = [
 
 const ANO_ATUAL = new Date().getFullYear();
 
+/* Validação mínima de e-mail: algo@dominio.tld */
+const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/* Plano de reserva: evita crash caso lerPlano() devolva null/undefined. */
+const PLANO_PADRAO = {
+  nomeCompleto: "Plano não identificado",
+  statusRotulo: "—",
+  descricao: "Não foi possível carregar os detalhes do plano.",
+  cicloRotulo: "—",
+  precoTexto: "—",
+};
+
 /* ── Utilidades ── */
 
 function lerUsuario() {
@@ -77,38 +88,42 @@ function lerNegocio() {
 
 function lerPreferencias() {
   try {
-    const raw = localStorage.getItem(CHAVE_PREFERENCIAS);
-    return raw
-      ? { ...PREFERENCIAS_PADRAO, ...JSON.parse(raw) }
-      : PREFERENCIAS_PADRAO;
+    const salvas = localStorage.getItem(CHAVE_PREFERENCIAS);
+    return salvas
+      ? { ...PREFERENCIAS_PADRAO, ...JSON.parse(salvas) }
+      : { ...PREFERENCIAS_PADRAO };
   } catch {
-    return PREFERENCIAS_PADRAO;
+    return { ...PREFERENCIAS_PADRAO };
   }
 }
 
 function normalizarLista(dados) {
   if (!dados) return [];
-  const l = Array.isArray(dados)
+  const lista = Array.isArray(dados)
     ? dados
     : dados.negocios || dados.data || dados.lista || [];
-  return Array.isArray(l) ? l : [];
+  return Array.isArray(lista) ? lista : [];
 }
 
 function extrairLocal(localizacao) {
   if (!localizacao) return { cidade: "", estado: "" };
+
   const partes = String(localizacao).split(" - ");
   if (partes.length === 2) {
     return { cidade: partes[0].trim(), estado: partes[1].trim() };
   }
+
   return { cidade: String(localizacao).trim(), estado: "" };
 }
 
 function pegarIniciais(nome) {
   if (!nome) return "?";
+
   const partes = String(nome).trim().split(/\s+/).filter(Boolean);
-  const a = partes[0]?.[0] || "";
-  const b = partes.length > 1 ? partes[partes.length - 1][0] : "";
-  return (a + b).toUpperCase() || "?";
+  const primeira = partes[0]?.[0] || "";
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
+
+  return (primeira + ultima).toUpperCase() || "?";
 }
 
 export default function Perfil({ onNavegar }) {
@@ -134,7 +149,9 @@ export default function Perfil({ onNavegar }) {
     negocio?.funcionarios != null ? String(negocio.funcionarios) : ""
   );
   const [fundacao, setFundacao] = useState(() =>
-    negocio?.anos_mercado ? String(ANO_ATUAL - Number(negocio.anos_mercado)) : ""
+    negocio?.anos_mercado
+      ? String(ANO_ATUAL - Number(negocio.anos_mercado))
+      : ""
   );
   const [descricao, setDescricao] = useState(() => negocio?.descricao ?? "");
 
@@ -142,20 +159,30 @@ export default function Perfil({ onNavegar }) {
   const [salvandoEmpresa, setSalvandoEmpresa] = useState(false);
   const [salvandoPessoal, setSalvandoPessoal] = useState(false);
 
-  /* Plano atual (lido do localStorage — troque por API quando existir) */
-  const [plano] = useState(lerPlano);
+  /* O plano ainda é lido do navegador até existir uma API de assinatura. */
+  const [planoSalvo] = useState(lerPlano);
 
-  /* Preferências: um único objeto = mais fácil de ligar/desligar tudo */
+  /* Preferências de notificações, salvas neste navegador. */
   const [preferencias, setPreferencias] = useState(lerPreferencias);
   const [preferenciasAbertas, setPreferenciasAbertas] = useState(true);
 
   const [feedback, setFeedback] = useState("");
   const inputFotoRef = useRef(null);
+  const feedbackTimer = useRef(null);
 
-  function mostrarFeedback(msg) {
-    setFeedback(msg);
-    window.setTimeout(() => setFeedback(""), 2600);
+  const plano = planoSalvo ?? PLANO_PADRAO;
+
+  function mostrarFeedback(mensagem) {
+    if (!mensagem) return;
+    setFeedback(mensagem);
+    window.clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = window.setTimeout(() => setFeedback(""), 2600);
   }
+
+  /* Limpa o timer de feedback ao desmontar (evita setState em componente desmontado). */
+  useEffect(() => {
+    return () => window.clearTimeout(feedbackTimer.current);
+  }, []);
 
   function salvarUsuario(patch) {
     const atual = lerUsuario() || {};
@@ -164,28 +191,49 @@ export default function Perfil({ onNavegar }) {
     return atualizado;
   }
 
-  /* SEMPRE busca o perfil atualizado no servidor (inclui a foto) */
+  /* Carrega o perfil atualizado do servidor. */
   useEffect(() => {
     let montado = true;
 
     (async () => {
       try {
-        const dados = await buscarPerfilUsuario();
-        if (!montado || !dados) return;
+        const bruto = await buscarPerfilUsuario();
+        if (!montado || !bruto) return;
 
-        setNome(dados.nome ?? "");
-        setEmail(dados.email ?? "");
-        setTelefone(dados.telefone ?? "");
-        setFoto(dados.foto ?? "");
+        /* A API pode responder { usuario }, { data } ou o objeto direto. */
+        const dados = bruto?.usuario ?? bruto?.data ?? bruto;
+        if (!dados || typeof dados !== "object") return;
 
-        salvarUsuario({
-          nome: dados.nome,
-          email: dados.email,
-          telefone: dados.telefone || "",
-          foto: dados.foto || "",
-        });
+        /* Resposta vazia não pode apagar o que já está na tela/localStorage. */
+        if (!dados.nome && !dados.email && !dados.telefone && !dados.foto) return;
+
+        const patchLocal = {};
+
+        if (dados.nome) {
+          setNome(dados.nome);
+          patchLocal.nome = dados.nome;
+        }
+
+        if (dados.email) {
+          setEmail(dados.email);
+          patchLocal.email = dados.email;
+        }
+
+        if (dados.telefone != null) {
+          setTelefone(dados.telefone);
+          patchLocal.telefone = dados.telefone;
+        }
+
+        if (dados.foto != null) {
+          setFoto(dados.foto);
+          patchLocal.foto = dados.foto;
+        }
+
+        if (Object.keys(patchLocal).length > 0) {
+          salvarUsuario(patchLocal);
+        }
       } catch {
-        /* se o servidor falhar, mantém o que veio do localStorage */
+        /* Mantém os dados já carregados na tela. */
       }
     })();
 
@@ -194,7 +242,7 @@ export default function Perfil({ onNavegar }) {
     };
   }, []);
 
-  /* SEMPRE busca o negócio atualizado no servidor */
+  /* Carrega os dados da empresa do servidor. */
   useEffect(() => {
     let montado = true;
 
@@ -203,24 +251,30 @@ export default function Perfil({ onNavegar }) {
         const lista = normalizarLista(await listarNegociosUsuario());
         if (!montado || lista.length === 0) return;
 
-        const n = lista[0];
-        const loc = extrairLocal(n.localizacao);
+        const negocioAtual = lista[0];
+        const local = extrairLocal(negocioAtual.localizacao);
 
-        setNegocio(n);
-        setEmpresa(n.nome || "");
-        setSegmento(n.segmento || "");
-        setPorte(n.publico_alvo || n.porte || "");
-        setEstado(loc.estado);
-        setCidade(loc.cidade);
-        setColaboradores(n.funcionarios != null ? String(n.funcionarios) : "");
-        setFundacao(
-          n.anos_mercado ? String(ANO_ATUAL - Number(n.anos_mercado)) : ""
+        setNegocio(negocioAtual);
+        setEmpresa(negocioAtual.nome || "");
+        setSegmento(negocioAtual.segmento || "");
+        setPorte(negocioAtual.publico_alvo || negocioAtual.porte || "");
+        setEstado(local.estado);
+        setCidade(local.cidade);
+        setColaboradores(
+          negocioAtual.funcionarios != null
+            ? String(negocioAtual.funcionarios)
+            : ""
         );
-        setDescricao(n.descricao || "");
+        setFundacao(
+          negocioAtual.anos_mercado
+            ? String(ANO_ATUAL - Number(negocioAtual.anos_mercado))
+            : ""
+        );
+        setDescricao(negocioAtual.descricao || "");
 
-        localStorage.setItem("negocio", JSON.stringify(n));
+        localStorage.setItem("negocio", JSON.stringify(negocioAtual));
       } catch {
-        /* se o servidor falhar, mantém o que veio do localStorage */
+        /* Mantém os dados já carregados na tela. */
       }
     })();
 
@@ -229,29 +283,57 @@ export default function Perfil({ onNavegar }) {
     };
   }, []);
 
-  /* Guarda as preferências no navegador sempre que algo muda */
-  useEffect(() => {
+  /* Grava as preferências no navegador.
+     A persistência é feita no manipulador do evento, e não dentro de um
+     useEffect: chamar setState sincronamente em um efeito dispara renders em
+     cascata (regra react-hooks/set-state-in-effect). */
+  function persistirPreferencias(proximas) {
     try {
-      localStorage.setItem(CHAVE_PREFERENCIAS, JSON.stringify(preferencias));
+      localStorage.setItem(CHAVE_PREFERENCIAS, JSON.stringify(proximas));
     } catch {
-      /* se o storage falhar, a tela continua funcionando */
+      mostrarFeedback(
+        "Não foi possível salvar as preferências neste navegador."
+      );
     }
-  }, [preferencias]);
+  }
 
   function alternarPreferencia(chave) {
-    setPreferencias((atual) => ({ ...atual, [chave]: !atual[chave] }));
+    const proximas = { ...preferencias, [chave]: !preferencias[chave] };
+    setPreferencias(proximas);
+    persistirPreferencias(proximas);
   }
 
   function alternarPreferenciasAtivas() {
-    setPreferencias((atual) => ({ ...atual, ativas: !atual.ativas }));
+    const proximas = { ...preferencias, ativas: !preferencias.ativas };
+    setPreferencias(proximas);
+    persistirPreferencias(proximas);
     setPreferenciasAbertas(true);
   }
 
   async function salvarAlteracoes() {
+    if (!nome.trim()) {
+      mostrarFeedback("Informe seu nome completo.");
+      return;
+    }
+
+    if (!email.trim()) {
+      mostrarFeedback("Informe seu e-mail.");
+      return;
+    }
+
+    if (!EMAIL_VALIDO.test(email.trim())) {
+      mostrarFeedback("Informe um e-mail válido (ex.: nome@empresa.com.br).");
+      return;
+    }
+
     setSalvandoPessoal(true);
 
     try {
-      const resposta = await atualizarPerfilUsuario({ nome, email, telefone });
+      const resposta = await atualizarPerfilUsuario({
+        nome: nome.trim(),
+        email: email.trim(),
+        telefone: telefone.trim(),
+      });
 
       if (resposta?.usuario) {
         salvarUsuario({
@@ -264,16 +346,13 @@ export default function Perfil({ onNavegar }) {
         setEmail(resposta.usuario.email ?? email);
         setTelefone(resposta.usuario.telefone ?? telefone);
         setFoto(resposta.usuario.foto ?? foto);
-      } else {
-        salvarUsuario({ nome, email, telefone });
       }
 
       mostrarFeedback("Alterações salvas com sucesso.");
     } catch (error) {
       console.error("Erro ao salvar perfil:", error);
-      salvarUsuario({ nome, email, telefone });
       mostrarFeedback(
-        "Salvo neste navegador, mas não sincronizou com o servidor."
+        error.message || "Não foi possível salvar seus dados no servidor."
       );
     } finally {
       setSalvandoPessoal(false);
@@ -283,10 +362,33 @@ export default function Perfil({ onNavegar }) {
   async function salvarEmpresa(evento) {
     if (evento) evento.preventDefault();
 
+    if (!empresa.trim()) {
+      mostrarFeedback("Informe o nome da empresa.");
+      return;
+    }
+
+    if (fundacao !== "") {
+      const ano = Number(fundacao);
+      if (!Number.isFinite(ano) || ano < 1900 || ano > ANO_ATUAL) {
+        mostrarFeedback(
+          `Informe um ano de fundação entre 1900 e ${ANO_ATUAL}.`
+        );
+        return;
+      }
+    }
+
+    if (colaboradores !== "") {
+      const total = Number(colaboradores);
+      if (!Number.isFinite(total) || total < 0) {
+        mostrarFeedback("Número de colaboradores inválido.");
+        return;
+      }
+    }
+
     const base = lerNegocio() || {};
 
     const payload = {
-      nome: empresa,
+      nome: empresa.trim(),
       segmento,
       publico_alvo: porte,
       localizacao: `${cidade}${estado ? ` - ${estado}` : ""}`,
@@ -296,24 +398,29 @@ export default function Perfil({ onNavegar }) {
     };
 
     let atualizado = { ...base, ...payload };
-
     setSalvandoEmpresa(true);
 
     if (base.id != null) {
       try {
         const resposta = await atualizarNegocio(base.id, payload);
+
         if (resposta?.negocio) {
           atualizado = { ...atualizado, ...resposta.negocio };
         }
+
         mostrarFeedback("Dados da empresa salvos.");
       } catch (error) {
         console.error("Erro ao atualizar empresa:", error);
         mostrarFeedback(
-          "Salvo neste navegador, mas não sincronizou com o servidor."
+          "Não foi possível sincronizar os dados da empresa com o servidor."
         );
+        setSalvandoEmpresa(false);
+        return;
       }
     } else {
-      mostrarFeedback("Dados da empresa salvos.");
+      mostrarFeedback("A empresa ainda não está cadastrada no servidor.");
+      setSalvandoEmpresa(false);
+      return;
     }
 
     localStorage.setItem("negocio", JSON.stringify(atualizado));
@@ -323,18 +430,25 @@ export default function Perfil({ onNavegar }) {
   }
 
   function cancelarEdicaoEmpresa() {
-    const n = lerNegocio() || {};
-    const loc = extrairLocal(n.localizacao);
+    const negocioSalvo = lerNegocio() || {};
+    const local = extrairLocal(negocioSalvo.localizacao);
 
-    setEmpresa(n.nome || "");
-    setSegmento(n.segmento || "");
-    setPorte(n.publico_alvo || n.porte || "");
-    setEstado(loc.estado);
-    setCidade(loc.cidade);
-    setColaboradores(n.funcionarios != null ? String(n.funcionarios) : "");
-    setFundacao(n.anos_mercado ? String(ANO_ATUAL - Number(n.anos_mercado)) : "");
-    setDescricao(n.descricao || "");
-
+    setEmpresa(negocioSalvo.nome || "");
+    setSegmento(negocioSalvo.segmento || "");
+    setPorte(negocioSalvo.publico_alvo || negocioSalvo.porte || "");
+    setEstado(local.estado);
+    setCidade(local.cidade);
+    setColaboradores(
+      negocioSalvo.funcionarios != null
+        ? String(negocioSalvo.funcionarios)
+        : ""
+    );
+    setFundacao(
+      negocioSalvo.anos_mercado
+        ? String(ANO_ATUAL - Number(negocioSalvo.anos_mercado))
+        : ""
+    );
+    setDescricao(negocioSalvo.descricao || "");
     setEditandoEmpresa(false);
   }
 
@@ -344,44 +458,80 @@ export default function Perfil({ onNavegar }) {
 
   async function handleFoto(evento) {
     const arquivo = evento.target.files?.[0];
+    evento.target.value = "";
     if (!arquivo) return;
+
+    if (!arquivo.type || !arquivo.type.startsWith("image/")) {
+      mostrarFeedback("Selecione um arquivo de imagem (JPG ou PNG).");
+      return;
+    }
+
+    if (arquivo.size > 8 * 1024 * 1024) {
+      mostrarFeedback("Imagem muito grande. Use uma de até 8 MB.");
+      return;
+    }
 
     const leitor = new FileReader();
 
-    leitor.onload = async () => {
-      const img = new window.Image();
+    leitor.onerror = () => {
+      mostrarFeedback("Não foi possível ler o arquivo selecionado.");
+    };
 
-      img.onload = async () => {
+    leitor.onload = () => {
+      const imagem = new window.Image();
+
+      imagem.onerror = () => {
+        mostrarFeedback("Arquivo de imagem inválido.");
+      };
+
+      imagem.onload = async () => {
         const tamanho = 256;
         const canvas = document.createElement("canvas");
         canvas.width = tamanho;
         canvas.height = tamanho;
-        const ctx = canvas.getContext("2d");
-        const lado = Math.min(img.width, img.height);
-        const sx = (img.width - lado) / 2;
-        const sy = (img.height - lado) / 2;
-        ctx.drawImage(img, sx, sy, lado, lado, 0, 0, tamanho, tamanho);
 
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-        setFoto(dataUrl);
-        salvarUsuario({ foto: dataUrl });
+        const contexto = canvas.getContext("2d");
+
+        if (!contexto) {
+          mostrarFeedback("Este navegador não suporta o recorte da imagem.");
+          return;
+        }
 
         try {
+          const lado = Math.min(imagem.width, imagem.height);
+          const sx = (imagem.width - lado) / 2;
+          const sy = (imagem.height - lado) / 2;
+
+          contexto.drawImage(
+            imagem,
+            sx,
+            sy,
+            lado,
+            lado,
+            0,
+            0,
+            tamanho,
+            tamanho
+          );
+
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+
           await atualizarPerfilUsuario({ foto: dataUrl });
+          setFoto(dataUrl);
+          salvarUsuario({ foto: dataUrl });
           mostrarFeedback("Foto de perfil atualizada.");
         } catch (error) {
           console.error("Erro ao salvar foto:", error);
           mostrarFeedback(
-            "Foto salva neste navegador, mas não sincronizou com o servidor."
+            error.message || "Não foi possível salvar sua foto no servidor."
           );
         }
       };
 
-      img.src = leitor.result;
+      imagem.src = leitor.result;
     };
 
     leitor.readAsDataURL(arquivo);
-    evento.target.value = "";
   }
 
   const iniciais = pegarIniciais(nome);
@@ -396,10 +546,13 @@ export default function Perfil({ onNavegar }) {
           <p>Gerencie suas informações, sua empresa e suas preferências.</p>
         </section>
 
-        {feedback && <div className="perfil-feedback">{feedback}</div>}
+        {feedback && (
+          <div className="perfil-feedback" role="status">
+            {feedback}
+          </div>
+        )}
 
         <div className="perfil-grid">
-          {/* COLUNA ESQUERDA */}
           <div className="perfil-left">
             <section className="perfil-card usuario-card">
               <div className="avatar-wrap">
@@ -453,8 +606,9 @@ export default function Perfil({ onNavegar }) {
                   <input
                     id="pf-nome"
                     type="text"
+                    autoComplete="name"
                     value={nome}
-                    onChange={(e) => setNome(e.target.value)}
+                    onChange={(evento) => setNome(evento.target.value)}
                   />
                 </div>
               </div>
@@ -468,8 +622,9 @@ export default function Perfil({ onNavegar }) {
                   <input
                     id="pf-email"
                     type="email"
+                    autoComplete="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(evento) => setEmail(evento.target.value)}
                   />
                 </div>
               </div>
@@ -482,10 +637,11 @@ export default function Perfil({ onNavegar }) {
                   </span>
                   <input
                     id="pf-telefone"
-                    type="text"
+                    type="tel"
+                    autoComplete="tel"
                     value={telefone}
                     placeholder="(00) 00000-0000"
-                    onChange={(e) => setTelefone(e.target.value)}
+                    onChange={(evento) => setTelefone(evento.target.value)}
                   />
                 </div>
               </div>
@@ -502,7 +658,6 @@ export default function Perfil({ onNavegar }) {
             </section>
           </div>
 
-          {/* COLUNA DIREITA */}
           <div className="perfil-right">
             <section
               className={`perfil-card preferencias-card ${
@@ -540,7 +695,9 @@ export default function Perfil({ onNavegar }) {
                     className={`card-collapse ${
                       preferenciasAbertas ? "aberto" : ""
                     }`}
-                    onClick={() => setPreferenciasAbertas(!preferenciasAbertas)}
+                    onClick={() =>
+                      setPreferenciasAbertas(!preferenciasAbertas)
+                    }
                     aria-expanded={preferenciasAbertas}
                     aria-label="Mostrar ou ocultar preferências"
                     title={preferenciasAbertas ? "Recolher" : "Expandir"}
@@ -616,7 +773,9 @@ export default function Perfil({ onNavegar }) {
                     </div>
                     <div className="preference-content">
                       <h3>Novidades do MarketMind</h3>
-                      <p>Fique por dentro de novas funcionalidades e melhorias.</p>
+                      <p>
+                        Fique por dentro de novas funcionalidades e melhorias.
+                      </p>
                     </div>
                     <button
                       type="button"
@@ -628,7 +787,9 @@ export default function Perfil({ onNavegar }) {
                       onClick={() => alternarPreferencia("novidades")}
                       disabled={!preferencias.ativas}
                       aria-label="Ativar novidades"
-                      aria-pressed={preferencias.ativas && preferencias.novidades}
+                      aria-pressed={
+                        preferencias.ativas && preferencias.novidades
+                      }
                     >
                       <span />
                     </button>
@@ -636,8 +797,8 @@ export default function Perfil({ onNavegar }) {
 
                   {!preferencias.ativas && (
                     <p className="preferencias-aviso">
-                      Preferências desativadas — nenhuma notificação será enviada
-                      enquanto o interruptor estiver desligado.
+                      Preferências desativadas — nenhuma notificação será
+                      enviada enquanto o interruptor estiver desligado.
                     </p>
                   )}
                 </div>
@@ -659,7 +820,7 @@ export default function Perfil({ onNavegar }) {
                   className="password-button"
                   onClick={() =>
                     mostrarFeedback(
-                      "A alteração de senha estará disponível em breve."
+                      "A alteração de senha não está disponível nesta versão."
                     )
                   }
                 >
@@ -670,20 +831,28 @@ export default function Perfil({ onNavegar }) {
 
             <section className="perfil-card plano-card">
               <h2>Plano atual</h2>
+
               <div className="plano-content">
                 <div className="plano-icon">
                   <Crown size={15} strokeWidth={2} />
                 </div>
+
                 <div className="plano-info">
                   <div className="plano-title">
                     <strong>{plano.nomeCompleto}</strong>
                     <span className="pro-status">{plano.statusRotulo}</span>
                   </div>
+
                   <p>{plano.descricao}</p>
+                  <p className="pagamento-aviso">
+                    Pagamento ainda não conectado. Nenhum dado de cartão é
+                    armazenado nesta página.
+                  </p>
                   <p className="plano-meta">
                     {plano.cicloRotulo} · {plano.precoTexto}
                   </p>
                 </div>
+
                 <button
                   type="button"
                   className="manage-plan"
@@ -697,7 +866,6 @@ export default function Perfil({ onNavegar }) {
           </div>
         </div>
 
-        {/* DADOS DA EMPRESA */}
         <section className="perfil-card empresa-card">
           <div className="empresa-head">
             <div>
@@ -772,7 +940,9 @@ export default function Perfil({ onNavegar }) {
                   <Users size={13} strokeWidth={2.2} />
                   Colaboradores
                 </span>
-                <span className="empresa-info-value">{colaboradores || "—"}</span>
+                <span className="empresa-info-value">
+                  {colaboradores || "—"}
+                </span>
               </div>
 
               <div className="empresa-info-item">
@@ -807,7 +977,7 @@ export default function Perfil({ onNavegar }) {
                       type="text"
                       value={empresa}
                       placeholder="Nome da empresa"
-                      onChange={(e) => setEmpresa(e.target.value)}
+                      onChange={(evento) => setEmpresa(evento.target.value)}
                     />
                   </div>
                 </div>
@@ -821,12 +991,12 @@ export default function Perfil({ onNavegar }) {
                     <select
                       id="emp-segmento"
                       value={segmento}
-                      onChange={(e) => setSegmento(e.target.value)}
+                      onChange={(evento) => setSegmento(evento.target.value)}
                     >
                       <option value="">Selecione...</option>
-                      {SEGMENTOS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
+                      {SEGMENTOS.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
                         </option>
                       ))}
                     </select>
@@ -842,12 +1012,12 @@ export default function Perfil({ onNavegar }) {
                     <select
                       id="emp-porte"
                       value={porte}
-                      onChange={(e) => setPorte(e.target.value)}
+                      onChange={(evento) => setPorte(evento.target.value)}
                     >
                       <option value="">Selecione...</option>
-                      {PORTES.map((p) => (
-                        <option key={p} value={p}>
-                          {p}
+                      {PORTES.map((item) => (
+                        <option key={item} value={item}>
+                          {item}
                         </option>
                       ))}
                     </select>
@@ -863,7 +1033,7 @@ export default function Perfil({ onNavegar }) {
                     <select
                       id="emp-estado"
                       value={estado}
-                      onChange={(e) => setEstado(e.target.value)}
+                      onChange={(evento) => setEstado(evento.target.value)}
                     >
                       <option value="">UF</option>
                       {ESTADOS.map((uf) => (
@@ -886,7 +1056,7 @@ export default function Perfil({ onNavegar }) {
                       type="text"
                       value={cidade}
                       placeholder="Cidade"
-                      onChange={(e) => setCidade(e.target.value)}
+                      onChange={(evento) => setCidade(evento.target.value)}
                     />
                   </div>
                 </div>
@@ -905,7 +1075,9 @@ export default function Perfil({ onNavegar }) {
                       min="0"
                       value={colaboradores}
                       placeholder="Ex.: 12"
-                      onChange={(e) => setColaboradores(e.target.value)}
+                      onChange={(evento) =>
+                        setColaboradores(evento.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -923,19 +1095,21 @@ export default function Perfil({ onNavegar }) {
                       max={ANO_ATUAL}
                       value={fundacao}
                       placeholder="Ex.: 2018"
-                      onChange={(e) => setFundacao(e.target.value)}
+                      onChange={(evento) => setFundacao(evento.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="form-group full">
-                  <label htmlFor="emp-descricao">Descrição do seu negócio</label>
+                  <label htmlFor="emp-descricao">
+                    Descrição do seu negócio
+                  </label>
                   <textarea
                     id="emp-descricao"
                     className="empresa-textarea"
                     value={descricao}
                     placeholder="Fale um pouco sobre o seu negócio..."
-                    onChange={(e) => setDescricao(e.target.value)}
+                    onChange={(evento) => setDescricao(evento.target.value)}
                     rows={3}
                   />
                 </div>
@@ -957,7 +1131,9 @@ export default function Perfil({ onNavegar }) {
                   disabled={salvandoEmpresa}
                 >
                   <Save size={15} strokeWidth={2.2} />
-                  {salvandoEmpresa ? "Salvando..." : "Salvar dados da empresa"}
+                  {salvandoEmpresa
+                    ? "Salvando..."
+                    : "Salvar dados da empresa"}
                 </button>
               </div>
             </form>

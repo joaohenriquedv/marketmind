@@ -65,10 +65,8 @@ function classeNivel(nivel) {
 }
 
 export default function Alertas() {
-  const [negocios, setNegocios] = useState(() => {
-    const local = lerNegocio();
-    return local?.id != null ? [local] : [];
-  });
+  /* Fonte da verdade é o banco; o localStorage só guarda a preferência de id */
+  const [negocios, setNegocios] = useState([]);
   const [ativoId, setAtivoId] = useState(() => lerNegocio()?.id ?? null);
   const [produtos, setProdutos] = useState([]);
 
@@ -88,10 +86,22 @@ export default function Alertas() {
     (async () => {
       try {
         const lista = normalizarLista(await listarNegociosUsuario());
-        if (!montado || lista.length === 0) return;
+        if (!montado) return;
+
+        if (lista.length === 0) {
+          localStorage.removeItem("negocio");
+          setNegocios([]);
+          setAtivoId(null);
+          setProdutos([]);
+          return;
+        }
+
+        const preferido = lerNegocio()?.id ?? null;
 
         setNegocios(lista);
-        const id = lista[0].id;
+        const id = lista.some((n) => n.id === preferido)
+          ? preferido
+          : lista[0].id;
         setAtivoId(id);
 
         try {

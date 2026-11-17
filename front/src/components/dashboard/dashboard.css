@@ -542,3 +542,72 @@
     width: 70px;
   }
 }
+
+/* ===========================================================
+   Indicadores financeiros — Receita / Lucro / Margem
+   Cole no FIM do admin.css e do dashboard.css
+   (os dois usam blocos diferentes, nada colide)
+   =========================================================== */
+
+/* ───────── ADMIN: card do negócio ───────── */
+.adm-negocio-fin {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  margin-top: 12px;
+  padding: 11px 12px;
+
+  background: #faf9f7;
+  border: 1px solid #f2efec;
+  border-radius: 10px;
+}
+
+.adm-negocio-fin > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.adm-negocio-fin span {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a3a8ae;
+}
+
+.adm-negocio-fin strong {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #16181d;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-negocio-fin strong.ok { color: #15803d; }
+.adm-negocio-fin strong.atencao { color: #b45309; }
+.adm-negocio-fin strong.ruim { color: #b91c1c; }
+
+.adm-negocio-fonte {
+  margin-top: 7px;
+  font-size: 0.66rem;
+  color: #a3a8ae;
+}
+
+/* ───────── DASHBOARD: nota de origem ───────── */
+.db-fonte {
+  margin: -4px 0 16px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+@media (max-width: 560px) {
+  .adm-negocio-fin {
+    grid-template-columns: 1fr 1fr;
+  }
+}

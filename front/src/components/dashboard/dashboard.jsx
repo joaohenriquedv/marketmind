@@ -13,14 +13,11 @@ import {
   FolderPlus,
   RefreshCw,
   AlertCircle,
+  Wallet,
 } from "lucide-react";
 import SeletorNegocio from "../seletorneg";
 import NovoNegocio from "../novonegocio";
-import {
-  listarNegociosUsuario,
-  criarNegocio,
-  listarProdutos,
-} from "../../api";
+import { buscarDashboard, criarNegocio } from "../../api";
 
 /* ── Utilidades ── */
 
@@ -79,14 +76,10 @@ function normalizarProduto(p) {
 }
 
 export default function Dashboard({ onNavegar }) {
-  const [negocios, setNegocios] = useState(() => {
-    const local = lerNegocioLocal();
-    return local?.id != null ? [local] : [];
-  });
-  const [ativoId, setAtivoId] = useState(() => {
-    const local = lerNegocioLocal();
-    return local?.id != null ? local.id : null;
-  });
+  /* Fonte da verdade é o banco. O localStorage só guarda qual negócio
+     estava selecionado por último — nunca os dados dele. */
+  const [negocios, setNegocios] = useState([]);
+  const [ativoId, setAtivoId] = useState(() => lerNegocioLocal()?.id ?? null);
 
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -98,58 +91,36 @@ export default function Dashboard({ onNavegar }) {
     [negocios, ativoId]
   );
 
-  /* Produtos vindos do BANCO (por negócio ativo) */
+  /* Produtos e indicadores do negócio ativo, calculados no servidor */
   const [produtos, setProdutos] = useState([]);
+  const [indicadores, setIndicadores] = useState(null);
 
+  /* Aplica o payload de GET /dashboard — inclusive quando vem vazio */
+  const aplicarResposta = useCallback((dados) => {
+    const lista = normalizarNegocios(dados?.negocios ?? dados);
+
+    setNegocios(lista);
+    setAtivoId(dados?.negocio_ativo?.id ?? lista[0]?.id ?? null);
+    setProdutos(
+      Array.isArray(dados?.produtos) ? dados.produtos.map(normalizarProduto) : []
+    );
+    setIndicadores(dados?.indicadores ?? null);
+
+    if (lista.length === 0) localStorage.removeItem("negocio");
+  }, []);
+
+  /* Carga inicial: uma única requisição traz tudo */
   useEffect(() => {
     let montado = true;
-    const id = negocioAtivo?.id;
-
-    if (id == null) return undefined;
 
     (async () => {
       try {
-        const lista = await listarProdutos(id);
+        const dados = await buscarDashboard(lerNegocioLocal()?.id ?? undefined);
+        if (montado) aplicarResposta(dados);
+      } catch {
         if (montado) {
-          setProdutos(
-            Array.isArray(lista) ? lista.map(normalizarProduto) : []
-          );
-        }
-      } catch {
-        if (montado) setProdutos([]);
-      }
-    })();
-
-    return () => {
-      montado = false;
-    };
-  }, [negocioAtivo?.id]);
-
-  const buscarNegocios = useCallback(
-    async () => normalizarNegocios(await listarNegociosUsuario()),
-    []
-  );
-
-  /* Busca inicial: todo setState acontece DEPOIS de um await */
-  useEffect(() => {
-    let montado = true;
-    const tinhaLocal = lerNegocioLocal()?.id != null;
-
-    (async () => {
-      try {
-        const lista = await buscarNegocios();
-        if (!montado) return;
-
-        if (lista.length) {
-          setNegocios(lista);
-          setAtivoId((atual) =>
-            lista.some((n) => n.id === atual) ? atual : lista[0].id
-          );
-        }
-      } catch {
-        if (montado && !tinhaLocal) {
           setErro(
-            "Não foi possível carregar seus negócios. Verifique se o servidor está rodando."
+            "Não foi possível carregar seu dashboard. Verifique se o servidor está rodando."
           );
         }
       } finally {
@@ -160,23 +131,73 @@ export default function Dashboard({ onNavegar }) {
     return () => {
       montado = false;
     };
-  }, [buscarNegocios]);
+  }, [aplicarResposta]);
+
+  /* Troca de negócio: busca os dados dele no servidor */
+  const trocarNegocio = useCallback(
+    async (id) => {
+      setCarregando(true);
+      setErro("");
+
+      try {
+        aplicarResposta(await buscarDashboard(id ?? undefined));
+      } catch {
+        setErro("Não foi possível carregar os dados desse negócio.");
+      } finally {
+        setCarregando(false);
+      }
+    },
+    [aplicarResposta]
+  );
+
+  /* Revalida ao voltar para a aba e a cada 60s (admin pode ter alterado) */
+  useEffect(() => {
+    let ativo = true;
+
+    async function revalidar() {
+      if (document.visibilityState === "hidden") return;
+
+      try {
+        const dados = await buscarDashboard(
+          lerNegocioLocal()?.id ?? undefined
+        );
+        if (ativo) aplicarResposta(dados);
+      } catch {
+        /* silencioso: mantém o que já está na tela */
+      }
+    }
+
+    window.addEventListener("focus", revalidar);
+    document.addEventListener("visibilitychange", revalidar);
+
+    const intervalo = setInterval(revalidar, 60000);
+
+    return () => {
+      ativo = false;
+      window.removeEventListener("focus", revalidar);
+      document.removeEventListener("visibilitychange", revalidar);
+      clearInterval(intervalo);
+    };
+  }, [aplicarResposta]);
+
+  /* Preferência de negócio: guarda apenas a escolha, nunca os dados */
+  useEffect(() => {
+    if (negocioAtivo) {
+      localStorage.setItem("negocio", JSON.stringify(negocioAtivo));
+    } else if (!carregando) {
+      localStorage.removeItem("negocio");
+    }
+  }, [negocioAtivo, carregando]);
 
   async function recarregar() {
     setCarregando(true);
     setErro("");
 
     try {
-      const lista = await buscarNegocios();
-      if (lista.length) {
-        setNegocios(lista);
-        setAtivoId((atual) =>
-          lista.some((n) => n.id === atual) ? atual : lista[0].id
-        );
-      }
+      aplicarResposta(await buscarDashboard(negocioAtivo?.id ?? undefined));
     } catch {
       setErro(
-        "Não foi possível carregar seus negócios. Verifique se o servidor está rodando."
+        "Não foi possível carregar seus dados. Verifique se o servidor está rodando."
       );
     } finally {
       setCarregando(false);
@@ -216,9 +237,12 @@ export default function Dashboard({ onNavegar }) {
 
     if (novo.id == null) novo.id = Date.now();
 
-    setNegocios((prev) => [...prev, novo]);
-    setAtivoId(novo.id);
-    localStorage.setItem("negocio", JSON.stringify(novo));
+    try {
+      aplicarResposta(await buscarDashboard(novo.id));
+    } catch {
+      setNegocios((prev) => [...prev, novo]);
+      setAtivoId(novo.id);
+    }
   }
 
   /* ── Métricas ── */
@@ -229,12 +253,27 @@ export default function Dashboard({ onNavegar }) {
     const custoVariavel = produtos.reduce((a, p) => a + p.custo * p.vendas, 0);
     const custoFixo = Number(negocioAtivo?.custos_mensais) || 0;
 
-    const receita = temProdutos
-      ? receitaProdutos
-      : Number(negocioAtivo?.receita_mensal) || 0;
-    const custos = temProdutos ? custoVariavel + custoFixo : custoFixo;
-    const lucro = receita - custos;
-    const margem = receita > 0 ? (lucro / receita) * 100 : 0;
+    /* O servidor é a fonte dos valores de dinheiro */
+    const srv = indicadores;
+
+    const receita = srv
+      ? Number(srv.receita) || 0
+      : temProdutos
+        ? receitaProdutos
+        : Number(negocioAtivo?.receita_mensal) || 0;
+
+    const custos = srv
+      ? Number(srv.custos) || 0
+      : temProdutos
+        ? custoVariavel + custoFixo
+        : custoFixo;
+
+    const lucro = srv ? Number(srv.lucro) || 0 : receita - custos;
+    const margem = srv
+      ? Number(srv.margem) || 0
+      : receita > 0
+        ? (lucro / receita) * 100
+        : 0;
 
     const crescendo = produtos.filter((p) => p.tendencia === "Crescendo").length;
     const estavel = produtos.filter((p) => p.tendencia === "Estavel").length;
@@ -254,6 +293,7 @@ export default function Dashboard({ onNavegar }) {
 
     return {
       temProdutos,
+      fonte: indicadores?.fonte ?? (temProdutos ? "produtos" : "cadastro"),
       receita,
       custos,
       lucro,
@@ -267,7 +307,7 @@ export default function Dashboard({ onNavegar }) {
       maxReceita,
       produtosEmQueda,
     };
-  }, [produtos, negocioAtivo]);
+  }, [produtos, negocioAtivo, indicadores]);
 
   /* ── Geometria do gauge ── */
   const gaugeRadius = 42;
@@ -299,6 +339,15 @@ export default function Dashboard({ onNavegar }) {
       Icone: DollarSign,
     },
     {
+      label: "Custos",
+      value: formatBRL(stats.custos),
+      delta: stats.temProdutos
+        ? "variáveis + fixos"
+        : "custos fixos do cadastro",
+      deltaClass: "blue",
+      Icone: Wallet,
+    },
+    {
       label: "Lucro Estimado",
       value: formatBRL(stats.lucro),
       delta: stats.lucro >= 0 ? "✓ Positivo" : "⚠ Negativo",
@@ -313,8 +362,11 @@ export default function Dashboard({ onNavegar }) {
           ? "✓ Saudável"
           : stats.margem > 0
             ? "⚠ Atenção"
-            : "sem dados",
-      deltaClass: stats.margem >= 30 ? "green" : "blue",
+            : stats.margem < 0
+              ? "✗ Negativa"
+              : "sem dados",
+      deltaClass:
+        stats.margem >= 30 ? "green" : stats.margem < 0 ? "red" : "blue",
       Icone: Percent,
     },
     {
@@ -356,7 +408,7 @@ export default function Dashboard({ onNavegar }) {
                 <SeletorNegocio
                   negocios={negocios}
                   ativo={ativoId}
-                  onSelecionar={setAtivoId}
+                  onSelecionar={trocarNegocio}
                   onNovo={() => {
                     setShowSeletor(false);
                     setShowModal(true);
@@ -457,6 +509,12 @@ export default function Dashboard({ onNavegar }) {
                 </div>
               ))}
             </div>
+
+            <p className="db-fonte">
+              {stats.fonte === "produtos"
+                ? `Receita e custos calculados com ${stats.total} produto(s) cadastrado(s) + custos fixos do negócio.`
+                : "Sem produtos cadastrados: usando a receita e os custos informados no cadastro do negócio."}
+            </p>
 
             <div className="db-charts">
               <div className="db-chart-card">
@@ -677,3 +735,4 @@ export default function Dashboard({ onNavegar }) {
     </div>
   );
 }
+

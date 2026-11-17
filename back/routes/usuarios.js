@@ -211,6 +211,125 @@ router.patch("/me", verificarToken, async (req, res) => {
   }
 });
 
+/* ALTERAR A PRÓPRIA SENHA */
+router.patch("/me/senha", verificarToken, async (req, res) => {
+  try {
+    const { senha_atual, nova_senha } = req.body || {};
+
+    if (!senha_atual || !nova_senha) {
+      return res.status(400).json({
+        erro: "Informe a senha atual e a nova senha.",
+      });
+    }
+
+    if (String(nova_senha).length < 6) {
+      return res.status(400).json({
+        erro: "A nova senha deve ter pelo menos 6 caracteres.",
+      });
+    }
+
+    const [usuarios] = await db.query(
+      "SELECT senha FROM usuarios WHERE id = ?",
+      [req.usuario.id]
+    );
+
+    if (usuarios.length === 0) {
+      return res.status(404).json({ erro: "Usuário não encontrado." });
+    }
+
+    const senhaConfere = await bcrypt.compare(
+      String(senha_atual),
+      usuarios[0].senha
+    );
+
+    if (!senhaConfere) {
+      return res.status(400).json({ erro: "A senha atual está incorreta." });
+    }
+
+    const senhaHash = await bcrypt.hash(String(nova_senha), 10);
+
+    await db.query("UPDATE usuarios SET senha = ? WHERE id = ?", [
+      senhaHash,
+      req.usuario.id,
+    ]);
+
+    return res.json({
+      sucesso: true,
+      mensagem: "Senha alterada com sucesso.",
+    });
+  } catch (error) {
+    console.error("Erro ao alterar senha:", error);
+    return res.status(500).json({
+      erro: "Não foi possível alterar a senha.",
+    });
+  }
+});
+
+/* PREFERÊNCIAS DA CONTA */
+const PREFERENCIAS_PADRAO = {
+  ativas: true,
+  notificacoes: true,
+  relatorios: true,
+  novidades: true,
+};
+
+router.get("/me/preferencias", verificarToken, async (req, res) => {
+  try {
+    const [linhas] = await db.query(
+      "SELECT dados FROM preferencias_usuario WHERE usuario_id = ?",
+      [req.usuario.id]
+    );
+
+    let preferencias = PREFERENCIAS_PADRAO;
+
+    if (linhas.length > 0) {
+      const dados = linhas[0].dados;
+      preferencias =
+        typeof dados === "string" ? JSON.parse(dados) : dados;
+    }
+
+    return res.json({
+      preferencias: { ...PREFERENCIAS_PADRAO, ...preferencias },
+    });
+  } catch (error) {
+    console.error("Erro ao buscar preferências:", error);
+    return res.status(500).json({
+      erro: "Não foi possível carregar as preferências.",
+    });
+  }
+});
+
+router.patch("/me/preferencias", verificarToken, async (req, res) => {
+  try {
+    const chaves = Object.keys(PREFERENCIAS_PADRAO);
+    const preferencias = {};
+
+    for (const chave of chaves) {
+      if (typeof req.body?.[chave] !== "boolean") {
+        return res.status(400).json({
+          erro: "As preferências devem ser valores booleanos.",
+        });
+      }
+
+      preferencias[chave] = req.body[chave];
+    }
+
+    await db.query(
+      `INSERT INTO preferencias_usuario (usuario_id, dados)
+       VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE dados = VALUES(dados)`,
+      [req.usuario.id, JSON.stringify(preferencias)]
+    );
+
+    return res.json({ sucesso: true, preferencias });
+  } catch (error) {
+    console.error("Erro ao salvar preferências:", error);
+    return res.status(500).json({
+      erro: "Não foi possível salvar as preferências.",
+    });
+  }
+});
+
 /* LISTAR USUÁRIOS */
 router.get("/", verificarToken, async (req, res) => {
   try {

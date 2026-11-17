@@ -1,0 +1,481 @@
+
+/* ===========================================================
+   Telas de recuperação de senha — MarketMind
+   Prefixo "recuperar-" evita colisão com login.css / perfil.css
+   Paleta igual à do login (#f47421 / #c85a12)
+   =========================================================== */
+
+.recuperar-tela {
+  --recuperar-primaria: #f47421;
+  --recuperar-primaria-escura: #e06a15;
+  --recuperar-texto: #16181d;
+  --recuperar-texto-suave: #6b7280;
+  --recuperar-borda: #e4e4e8;
+  --recuperar-erro: #c0392b;
+
+  min-height: 100vh;
+  min-height: 100svh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+  background: #f3f1ee;
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--recuperar-texto);
+}
+
+.recuperar-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border: 1px solid #eae7e3;
+  border-radius: 16px;
+  padding: 26px 30px 26px;
+
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04),
+    0 24px 48px -24px rgba(16, 24, 40, 0.18);
+
+  animation: recuperarEntrada 0.32s ease both;
+}
+
+/* ── topo: voltar + status ── */
+.recuperar-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.recuperar-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  background: none;
+  border: none;
+  padding: 4px 0;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--recuperar-texto-suave);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.recuperar-voltar:hover {
+  color: var(--recuperar-primaria);
+  transform: translateX(-2px);
+}
+
+.recuperar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 5px 11px;
+  border-radius: 999px;
+
+  background: #fdf3e9;
+  border: 1px solid #f6ddc7;
+
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #a35410;
+  white-space: nowrap;
+}
+
+.recuperar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--recuperar-primaria);
+  animation: recuperarPulso 2s ease-out infinite;
+}
+
+/* ── textos ── */
+.recuperar-titulo {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--recuperar-texto);
+  text-align: left;
+}
+
+.recuperar-titulo-longo {
+  font-size: 21px;
+  line-height: 1.3;
+}
+
+.recuperar-texto {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--recuperar-texto-suave);
+}
+
+.recuperar-texto strong {
+  color: var(--recuperar-texto);
+  font-weight: 600;
+}
+
+.recuperar-texto-pequeno {
+  font-size: 12.5px;
+  margin-bottom: 18px;
+}
+
+/* ── ícone ── */
+.recuperar-icone {
+  width: 54px;
+  height: 54px;
+  margin-bottom: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.recuperar-icone-manutencao {
+  background: rgba(244, 116, 33, 0.12);
+  color: #b7540f;
+  box-shadow: inset 0 0 0 1px rgba(244, 116, 33, 0.16);
+}
+
+.recuperar-icone-alerta {
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--recuperar-erro);
+}
+
+/* ── bloco "enquanto isso" ── */
+.recuperar-bloco-ajuda {
+  padding: 15px 17px;
+  margin: 4px 0 20px;
+
+  background: #fafaf9;
+  border: 1px solid #f0eeec;
+  border-radius: 11px;
+}
+
+.recuperar-bloco-titulo {
+  margin: 0 0 9px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a9099;
+}
+
+.recuperar-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recuperar-lista li {
+  position: relative;
+  padding-left: 16px;
+
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.recuperar-lista li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #f0b184;
+}
+
+/* ── formulário ── */
+.recuperar-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.recuperar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--recuperar-texto);
+  margin-bottom: 6px;
+}
+
+.recuperar-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--recuperar-texto);
+
+  background: #fff;
+  border: 1px solid var(--recuperar-borda);
+  border-radius: 9px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.recuperar-input::placeholder {
+  color: #b3b8bf;
+}
+
+.recuperar-input:focus {
+  border-color: var(--recuperar-primaria);
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.14);
+}
+
+.recuperar-input-erro {
+  border-color: var(--recuperar-erro);
+}
+
+.recuperar-input-erro:focus {
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.12);
+}
+
+.recuperar-erro {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--recuperar-erro);
+}
+
+/* ── botões ── */
+.recuperar-botao {
+  width: 100%;
+  height: 48px;
+  margin-top: 18px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: var(--recuperar-primaria);
+  color: #fff;
+
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.recuperar-botao:hover:not(:disabled) {
+  background: var(--recuperar-primaria-escura);
+  box-shadow: 0 10px 20px -14px rgba(244, 116, 33, 0.95);
+}
+
+.recuperar-botao:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.recuperar-botao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recuperar-botao-claro {
+  background: #f4f4f3;
+  color: #3a3d44;
+}
+
+.recuperar-botao-claro:hover:not(:disabled) {
+  background: #ecebe9;
+  box-shadow: none;
+}
+
+/* ── rodapé ── */
+.recuperar-ajuda {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--recuperar-texto-suave);
+}
+
+.recuperar-link {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b7540f;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.recuperar-link:hover {
+  color: #8f3f08;
+}
+
+.recuperar-nota {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+/* ── link "Esqueceu a senha?" do login ── */
+.login-linha-senha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.login-esqueceu {
+  background: none;
+  border: none;
+  padding: 0;
+
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #b7540f;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login-esqueceu:hover {
+  color: #8f3f08;
+}
+
+/* ── foco visível ── */
+.recuperar-botao:focus-visible,
+.recuperar-voltar:focus-visible,
+.recuperar-link:focus-visible,
+.recuperar-input:focus-visible {
+  outline: 2px solid var(--recuperar-primaria);
+  outline-offset: 2px;
+}
+
+/* ── animações ── */
+@keyframes recuperarEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes recuperarPulso {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 116, 33, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(244, 116, 33, 0);
+  }
+}
+
+/* ── celular ── */
+@media (max-width: 480px) {
+  .recuperar-tela {
+    padding: 14px;
+  }
+
+  .recuperar-card {
+    padding: 20px 18px 22px;
+    border-radius: 14px;
+  }
+
+  .recuperar-titulo {
+    font-size: 21px;
+  }
+
+  .recuperar-titulo-longo {
+    font-size: 19px;
+  }
+
+  /* iOS: fonte < 16px faz o Safari dar zoom ao focar o campo */
+  .recuperar-input {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recuperar-card {
+    animation: none;
+  }
+
+  .recuperar-status-dot {
+    animation: none;
+  }
+
+  .recuperar-voltar:hover {
+    transform: none;
+  }
+}
+
+/* ── aviso de manutenção dentro do formulário ── */
+.recuperar-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-top: 14px;
+  padding: 12px 14px;
+
+  background: #fff8f0;
+  border: 1px solid #f7ddc3;
+  border-left: 3px solid #ef8b3f;
+  border-radius: 9px;
+
+  animation: recuperarEntrada 0.25s ease both;
+}
+
+.recuperar-aviso-icone {
+  flex: 0 0 auto;
+  color: #b7540f;
+  margin-top: 1px;
+}
+
+.recuperar-aviso-titulo {
+  margin: 0 0 3px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8f3f08;
+}
+
+.recuperar-aviso-texto {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #8a5a35;
+}

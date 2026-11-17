@@ -15,6 +15,7 @@ body {
   overflow: hidden;
 
   min-height: 100vh;
+  min-height: 100svh; /* celular: respeita a barra do navegador */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -329,13 +330,46 @@ body {
   color: #3a3d44;
 }
 
+/* Link "Esqueceu a senha?" — usado como <button> dentro do form */
 .forgot-link {
   align-self: flex-end;
-  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  margin-top: -8px;
+  padding: 5px 8px;
+  border-radius: 7px;
+
+  background: none;
+  border: none;
+
+  font-family: inherit;
   font-size: 0.82rem;
-  color: #c85a12;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  font-weight: 600;
+  line-height: 1;
+
+  color: #a34a0d;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.forgot-link svg {
+  flex: 0 0 auto;
+  transition: transform 0.18s ease;
+}
+
+.forgot-link:hover {
+  color: #8f3f08;
+  background: rgba(244, 116, 33, 0.09);
+}
+
+.forgot-link:hover svg {
+  transform: rotate(-12deg);
+}
+
+.forgot-link:active {
+  background: rgba(244, 116, 33, 0.16);
 }
 
 /* ── BOTÃO PRINCIPAL ── */
@@ -505,6 +539,16 @@ body {
   text-align: center;
 }
 
+/* ── FOCO VISÍVEL (acessibilidade) ── */
+.login-btn:focus-visible,
+.google-btn:focus-visible,
+.link-btn:focus-visible,
+.forgot-link:focus-visible,
+.toggle-senha:focus-visible {
+  outline: 2px solid #f47421;
+  outline-offset: 2px;
+}
+
 /* ── ANIMAÇÕES ── */
 .fade-down {
   animation: fadeDown 0.7s ease forwards;
@@ -568,6 +612,12 @@ body {
     min-height: auto;
   }
 
+  /* iOS: fonte < 16px faz o Safari dar zoom ao focar o campo */
+  .input-group input,
+  .input-group input.com-toggle {
+    font-size: 16px;
+  }
+
   .left-panel {
     padding: 36px 28px 28px;
     gap: 22px;
@@ -587,6 +637,14 @@ body {
 @media (max-width: 480px) {
   .page {
     padding: 12px;
+  }
+
+  .form-card {
+    max-width: 100%;
+  }
+
+  .right-panel {
+    padding: 24px 20px 30px;
   }
 
   .logo {

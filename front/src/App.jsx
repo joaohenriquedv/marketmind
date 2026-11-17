@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import Cadastro from "./components/cadastro/cadastro.jsx";
 import Login from "./components/login/login.jsx";
+import RecuperarSenha from "./components/login/RecuperarSenha.jsx";
 import Principal from "./components/principal/principal.jsx";
 import Problema from "./components/principal/problemas.jsx";
 import Empresa from "./components/empresa/empresa.jsx";
@@ -22,7 +24,12 @@ import Planos from "./components/planos/planos.jsx";
    Não é preciso nenhum import de CSS aqui. */
 
 /* Páginas de autenticação não exibem a navbar */
-const PAGINAS_SEM_NAVBAR = ["login", "cadastro-usuario", "cadastro-empresa"];
+const PAGINAS_SEM_NAVBAR = [
+  "login",
+  "cadastro-usuario",
+  "cadastro-empresa",
+  "recuperar-senha",
+];
 
 /* Relaciona a página atual com o item que deve ficar ativo no menu.
    Assim a navbar é renderizada uma única vez, aqui no App. */
@@ -57,59 +64,69 @@ function App() {
 
   const semNavbar = PAGINAS_SEM_NAVBAR.includes(pagina);
 
+  function navegar(destino) {
+    setPagina(destino);
+  }
+
   function renderizarPagina() {
     switch (pagina) {
       case "cadastro-usuario":
         return (
           <Cadastro
-            onVoltar={() => setPagina("login")}
-            onCadastrar={() => setPagina("cadastro-empresa")}
+            onVoltar={() => navegar("login")}
+            onCadastrar={() => navegar("cadastro-empresa")}
           />
         );
 
       case "login":
         return (
           <Login
-            onNavegar={setPagina}
-            onIrParaCadastro={() => setPagina("cadastro-usuario")}
+            onNavegar={navegar}
+            onIrParaCadastro={() => navegar("cadastro-usuario")}
           />
         );
+
+      /* A recuperação mostra o formulário normal e, ao confirmar,
+         exibe o aviso de manutenção (MANUTENCAO em recuperarSenha.jsx).
+         Nenhuma chamada de API acontece aqui. */
+      case "recuperar-senha":
+        return <RecuperarSenha onVoltar={() => navegar("login")} />;
 
       case "cadastro-empresa":
         return (
           <Empresa
-            onBack={() => setPagina("cadastro-usuario")}
-            onSubmit={() => setPagina("home")}
+            onBack={() => navegar("cadastro-usuario")}
+            onSubmit={() => navegar("home")}
           />
         );
 
       case "home":
       case "principal":
-        return <Home setPagina={setPagina} />;
+        return <Home setPagina={navegar} />;
 
       case "produto":
-        return <Produtos onNavegar={setPagina} />;
+        return <Produtos onNavegar={navegar} />;
 
       case "dashboard":
-        return <Dashboard onNavegar={setPagina} />;
+        return <Dashboard onNavegar={navegar} />;
 
       case "contato":
-        return <Contato onNavegar={setPagina} />;
+        return <Contato onNavegar={navegar} />;
 
       case "alertas":
-        return <Alertas onNavegar={setPagina} />;
+        return <Alertas onNavegar={navegar} />;
 
       case "perfil":
-        return <Perfil onNavegar={setPagina} />;
+        return <Perfil onNavegar={navegar} />;
 
       case "planos":
-        return <Planos onNavegar={setPagina} />;
+        return <Planos onNavegar={navegar} />;
 
       case "admin":
-        return <Admin onNavegar={setPagina} />;
+        return <Admin onNavegar={navegar} />;
 
       default:
-        return <Home setPagina={setPagina} />;
+        return <Home setPagina={navegar} />;
     }
   }
 
@@ -117,7 +134,7 @@ function App() {
     <>
       {!semNavbar && (
         <Navbar
-          onNavegar={setPagina}
+          onNavegar={navegar}
           paginaAtiva={MENU_ATIVO[pagina] || pagina}
         />
       )}

@@ -9,16 +9,73 @@ const router = express.Router();
    HELPERS
 ================================ */
 
+/* ===============================
+   PRODUTOS — compatibilidade com o schema
+   O banco pode ter (preco, vendas) ou (preco_venda, vendas_mes),
+   e o ENUM de tendência pode ser 'Estavel' ou 'estavel'.
+   As colunas reais são detectadas uma única vez.
+================================ */
+let colunasProdutosCache = null;
+
+async function colunasProdutos() {
+  if (colunasProdutosCache) return colunasProdutosCache;
+
+  const [linhas] = await db.query("SHOW COLUMNS FROM produtos");
+  colunasProdutosCache = new Map(
+    linhas.map((l) => [l.Field, String(l.Type || "")])
+  );
+
+  return colunasProdutosCache;
+}
+
+function campoPreco(cols) {
+  return cols.has("preco_venda") ? "preco_venda" : "preco";
+}
+
+function campoVendas(cols) {
+  return cols.has("vendas_mes") ? "vendas_mes" : "vendas";
+}
+
+function tendenciaParaBanco(valor, tipoEnum) {
+  const s = String(valor || "").toLowerCase();
+  const canonico = s.includes("qued")
+    ? "EmQueda"
+    : s.includes("cresc")
+      ? "Crescendo"
+      : "Estavel";
+
+  if (!String(tipoEnum || "").includes("'estavel'")) return canonico;
+
+  return canonico === "EmQueda"
+    ? "em_queda"
+    : canonico === "Crescendo"
+      ? "crescendo"
+      : "estavel";
+}
+
+function tendenciaParaFront(valor) {
+  const s = String(valor || "").toLowerCase();
+  if (s.includes("qued")) return "EmQueda";
+  if (s.includes("cresc")) return "Crescendo";
+  return "Estavel";
+}
+
 function normalizarProdutoSaida(p) {
+  const preco = Number(p.preco_venda ?? p.preco ?? 0);
+  const custo = Number(p.preco_custo ?? p.precoCusto ?? 0);
+  const vendas = Number(p.vendas_mes ?? p.vendas ?? 0);
+
   return {
     id: p.id,
     negocio_id: p.negocio_id,
     nome: p.nome,
     categoria: p.categoria || "",
-    preco: Number(p.preco) || 0,
-    precoCusto: Number(p.preco_custo) || 0,
-    vendas: Number(p.vendas) || 0,
-    tendencia: p.tendencia || "Estavel",
+    preco,
+    precoCusto: custo,
+    custo,
+    vendas,
+    receita: preco * vendas,
+    tendencia: tendenciaParaFront(p.tendencia),
     estrategico: Boolean(p.estrategico),
   };
 }
@@ -240,8 +297,18 @@ router.post("/:negocioId/produtos", verificarToken, async (req, res) => {
     const { negocioId } = req.params;
     const usuarioId = req.usuario.id;
 
-    const { nome, categoria, preco, precoCusto, preco_custo, vendas, tendencia, estrategico } =
-      req.body;
+    const {
+      nome,
+      categoria,
+      preco,
+      preco_venda,
+      precoCusto,
+      preco_custo,
+      vendas,
+      vendas_mes,
+      tendencia,
+      estrategico,
+    } = req.body;
 
     if (!(await negocioDoUsuario(negocioId, usuarioId))) {
       return res.status(404).json({ erro: "Negócio não encontrado." });
@@ -251,20 +318,26 @@ router.post("/:negocioId/produtos", verificarToken, async (req, res) => {
       return res.status(400).json({ erro: "O nome do produto é obrigatório." });
     }
 
+    const cols = await colunasProdutos();
+    const cPreco = campoPreco(cols);
+    const cVendas = campoVendas(cols);
+
+    const valorPreco = Number(preco ?? preco_venda) || 0;
+    const valorCusto = Number(precoCusto ?? preco_custo) || 0;
+    const valorVendas = Number(vendas ?? vendas_mes) || 0;
+
     const [resultado] = await db.query(
-      `
-      INSERT INTO produtos
-      (negocio_id, nome, categoria, preco, preco_custo, vendas, tendencia, estrategico)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+      `INSERT INTO produtos
+        (negocio_id, nome, categoria, preco_custo, ${cPreco}, ${cVendas}, tendencia, estrategico)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         negocioId,
         String(nome).trim(),
         categoria || "",
-        Number(preco) || 0,
-        Number(precoCusto ?? preco_custo) || 0,
-        Number(vendas) || 0,
-        tendencia || "Estavel",
+        valorCusto,
+        valorPreco,
+        valorVendas,
+        tendenciaParaBanco(tendencia, cols.get("tendencia")),
         estrategico ? 1 : 0,
       ]
     );
@@ -283,111 +356,133 @@ router.post("/:negocioId/produtos", verificarToken, async (req, res) => {
 /* ===============================
    PRODUTOS — ATUALIZAR
 ================================ */
-router.patch("/:negocioId/produtos/:produtoId", verificarToken, async (req, res) => {
-  try {
-    const { negocioId, produtoId } = req.params;
-    const usuarioId = req.usuario.id;
+router.patch(
+  "/:negocioId/produtos/:produtoId",
+  verificarToken,
+  async (req, res) => {
+    try {
+      const { negocioId, produtoId } = req.params;
+      const usuarioId = req.usuario.id;
 
-    if (!(await negocioDoUsuario(negocioId, usuarioId))) {
-      return res.status(404).json({ erro: "Negócio não encontrado." });
-    }
-
-    const [existe] = await db.query(
-      "SELECT id FROM produtos WHERE id = ? AND negocio_id = ?",
-      [produtoId, negocioId]
-    );
-
-    if (existe.length === 0) {
-      return res.status(404).json({ erro: "Produto não encontrado." });
-    }
-
-    const { nome, categoria, preco, precoCusto, preco_custo, vendas, tendencia, estrategico } =
-      req.body;
-
-    const campos = [];
-    const valores = [];
-
-    if (nome !== undefined) {
-      if (!String(nome).trim()) {
-        return res.status(400).json({ erro: "O nome não pode ficar vazio." });
+      if (!(await negocioDoUsuario(negocioId, usuarioId))) {
+        return res.status(404).json({ erro: "Negócio não encontrado." });
       }
-      campos.push("nome = ?");
-      valores.push(String(nome).trim());
-    }
-    if (categoria !== undefined) {
-      campos.push("categoria = ?");
-      valores.push(categoria || "");
-    }
-    if (preco !== undefined) {
-      campos.push("preco = ?");
-      valores.push(Number(preco) || 0);
-    }
-    if (precoCusto !== undefined || preco_custo !== undefined) {
-      campos.push("preco_custo = ?");
-      valores.push(Number(precoCusto ?? preco_custo) || 0);
-    }
-    if (vendas !== undefined) {
-      campos.push("vendas = ?");
-      valores.push(Number(vendas) || 0);
-    }
-    if (tendencia !== undefined) {
-      campos.push("tendencia = ?");
-      valores.push(tendencia || "Estavel");
-    }
-    if (estrategico !== undefined) {
-      campos.push("estrategico = ?");
-      valores.push(estrategico ? 1 : 0);
-    }
 
-    if (campos.length === 0) {
-      return res.status(400).json({ erro: "Nenhum campo para atualizar." });
+      const [existe] = await db.query(
+        "SELECT id FROM produtos WHERE id = ? AND negocio_id = ?",
+        [produtoId, negocioId]
+      );
+
+      if (existe.length === 0) {
+        return res.status(404).json({ erro: "Produto não encontrado." });
+      }
+
+      const {
+        nome,
+        categoria,
+        preco,
+        preco_venda,
+        precoCusto,
+        preco_custo,
+        vendas,
+        vendas_mes,
+        tendencia,
+        estrategico,
+      } = req.body;
+
+      const cols = await colunasProdutos();
+      const cPreco = campoPreco(cols);
+      const cVendas = campoVendas(cols);
+
+      const campos = [];
+      const valores = [];
+
+      if (nome !== undefined) {
+        if (!String(nome).trim()) {
+          return res.status(400).json({ erro: "O nome não pode ficar vazio." });
+        }
+        campos.push("nome = ?");
+        valores.push(String(nome).trim());
+      }
+      if (categoria !== undefined) {
+        campos.push("categoria = ?");
+        valores.push(categoria || "");
+      }
+      if (preco !== undefined || preco_venda !== undefined) {
+        campos.push(`${cPreco} = ?`);
+        valores.push(Number(preco ?? preco_venda) || 0);
+      }
+      if (precoCusto !== undefined || preco_custo !== undefined) {
+        campos.push("preco_custo = ?");
+        valores.push(Number(precoCusto ?? preco_custo) || 0);
+      }
+      if (vendas !== undefined || vendas_mes !== undefined) {
+        campos.push(`${cVendas} = ?`);
+        valores.push(Number(vendas ?? vendas_mes) || 0);
+      }
+      if (tendencia !== undefined) {
+        campos.push("tendencia = ?");
+        valores.push(tendenciaParaBanco(tendencia, cols.get("tendencia")));
+      }
+      if (estrategico !== undefined) {
+        campos.push("estrategico = ?");
+        valores.push(estrategico ? 1 : 0);
+      }
+
+      if (campos.length === 0) {
+        return res.status(400).json({ erro: "Nenhum campo para atualizar." });
+      }
+
+      valores.push(produtoId, negocioId);
+
+      await db.query(
+        `UPDATE produtos SET ${campos.join(", ")} WHERE id = ? AND negocio_id = ?`,
+        valores
+      );
+
+      const [linhas] = await db.query("SELECT * FROM produtos WHERE id = ?", [
+        produtoId,
+      ]);
+
+      return res.json({ produto: normalizarProdutoSaida(linhas[0]) });
+    } catch (error) {
+      console.error("Erro ao atualizar produto:", error);
+      return res.status(500).json({ erro: "Erro ao atualizar produto." });
     }
-
-    valores.push(produtoId, negocioId);
-
-    await db.query(
-      `UPDATE produtos SET ${campos.join(", ")} WHERE id = ? AND negocio_id = ?`,
-      valores
-    );
-
-    const [linhas] = await db.query("SELECT * FROM produtos WHERE id = ?", [
-      produtoId,
-    ]);
-
-    return res.json({ produto: normalizarProdutoSaida(linhas[0]) });
-  } catch (error) {
-    console.error("Erro ao atualizar produto:", error);
-    return res.status(500).json({ erro: "Erro ao atualizar produto." });
   }
-});
+);
 
 /* ===============================
    PRODUTOS — EXCLUIR
 ================================ */
-router.delete("/:negocioId/produtos/:produtoId", verificarToken, async (req, res) => {
-  try {
-    const { negocioId, produtoId } = req.params;
-    const usuarioId = req.usuario.id;
+router.delete(
+  "/:negocioId/produtos/:produtoId",
+  verificarToken,
+  async (req, res) => {
+    try {
+      const { negocioId, produtoId } = req.params;
+      const usuarioId = req.usuario.id;
 
-    if (!(await negocioDoUsuario(negocioId, usuarioId))) {
-      return res.status(404).json({ erro: "Negócio não encontrado." });
+      if (!(await negocioDoUsuario(negocioId, usuarioId))) {
+        return res.status(404).json({ erro: "Negócio não encontrado." });
+      }
+
+      const [resultado] = await db.query(
+        "DELETE FROM produtos WHERE id = ? AND negocio_id = ?",
+        [produtoId, negocioId]
+      );
+
+      if (resultado.affectedRows === 0) {
+        return res.status(404).json({ erro: "Produto não encontrado." });
+      }
+
+      return res.json({ sucesso: true, mensagem: "Produto excluído." });
+    } catch (error) {
+      console.error("Erro ao excluir produto:", error);
+      return res.status(500).json({ erro: "Erro ao excluir produto." });
     }
-
-    const [resultado] = await db.query(
-      "DELETE FROM produtos WHERE id = ? AND negocio_id = ?",
-      [produtoId, negocioId]
-    );
-
-    if (resultado.affectedRows === 0) {
-      return res.status(404).json({ erro: "Produto não encontrado." });
-    }
-
-    return res.json({ sucesso: true, mensagem: "Produto excluído." });
-  } catch (error) {
-    console.error("Erro ao excluir produto:", error);
-    return res.status(500).json({ erro: "Erro ao excluir produto." });
   }
-});
+);
 
 /* ===============================
    LISTAR NEGÓCIOS DO USUÁRIO

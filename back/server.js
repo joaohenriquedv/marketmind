@@ -7,7 +7,7 @@ require("dotenv").config();
 const usuariosRoutes = require("./routes/usuarios");
 const negociosRoutes = require("./routes/negocios");
 const adminRoutes = require("./routes/admin");
-const senhaRoutes = require("./routes/senha");
+const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
 
@@ -47,7 +47,11 @@ app.get("/", (req, res, next) => {
 app.use("/usuarios", usuariosRoutes);
 app.use("/negocios", negociosRoutes);
 app.use("/admin", adminRoutes);
+app.use("/dashboard", dashboardRoutes);
+/* [ESQUECEU A SENHA — desativado] reative as duas linhas junto com o .env
+const senhaRoutes = require("./routes/senha");
 app.use("/senha", senhaRoutes);
+*/
 
 /* ============================================================
    Opcional: servir o front buildado (front/dist) pelo próprio

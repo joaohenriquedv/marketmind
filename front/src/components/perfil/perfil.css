@@ -1191,3 +1191,43 @@ body {
     margin-left: auto;
   }
 }
+
+/* Formulário de troca de senha e aviso de pagamento */
+.senha-form {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 0 48px;
+}
+
+.senha-form label {
+  color: #5b6069;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.senha-form input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #e4e4e8;
+  border-radius: 8px;
+  color: #16181d;
+  font: inherit;
+}
+
+.senha-form input:focus {
+  outline: 0;
+  border-color: #f47421;
+  box-shadow: 0 0 0 3px rgba(244, 116, 33, 0.12);
+}
+
+.senha-form .save-button {
+  margin-top: 8px;
+}
+
+.pagamento-aviso {
+  margin-top: 8px !important;
+  color: #8a5a2b !important;
+  font-size: 0.75rem !important;
+  line-height: 1.4;
+}

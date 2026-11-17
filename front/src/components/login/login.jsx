@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import "./login.css";
-import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn, ArrowRight, KeyRound } from "lucide-react";
 import { loginUsuario } from "../../api";
 
 function Login({ onNavegar, onIrParaCadastro }) {
@@ -143,6 +143,15 @@ function Login({ onNavegar, onIrParaCadastro }) {
                 )}
               </button>
             </div>
+
+            <button
+              type="button"
+              className="forgot-link"
+              onClick={() => onNavegar && onNavegar("recuperar-senha")}
+            >
+              <KeyRound size={14} strokeWidth={2.2} aria-hidden="true" />
+              Esqueceu a senha?
+            </button>
 
             <button type="submit" className="login-btn" disabled={carregando}>
               {carregando ? (

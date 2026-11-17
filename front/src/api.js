@@ -124,6 +124,31 @@ export async function buscarNegociosAdmin() {
   });
 }
 
+export async function buscarProdutosAdmin() {
+  return requisitar("/admin/produtos", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${obterToken()}` },
+  });
+}
+
+export async function atualizarNegocioAdmin(id, dados) {
+  return requisitar(`/admin/negocios/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${obterToken()}`,
+    },
+    body: JSON.stringify(dados),
+  });
+}
+
+export async function excluirNegocioAdmin(id) {
+  return requisitar(`/admin/negocios/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${obterToken()}` },
+  });
+}
+
 export async function alterarStatusUsuario(id, ativo) {
   return requisitar(`/admin/usuarios/${id}/status`, {
     method: "PATCH",
@@ -177,6 +202,15 @@ export async function atualizarNegocio(negocioId, dados) {
 /* ===============================
    PRODUTOS (por negócio)
 ================================ */
+export async function buscarDashboard(negocioId) {
+  const query = negocioId != null ? `?negocio_id=${negocioId}` : "";
+
+  return requisitar(`/dashboard${query}`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${obterToken()}` },
+  });
+}
+
 export async function listarProdutos(negocioId) {
   return requisitar(`/negocios/${negocioId}/produtos`, {
     method: "GET",
@@ -233,3 +267,31 @@ export async function atualizarPerfilUsuario(dados) {
     body: JSON.stringify(dados),
   });
 }
+ export async function buscarPreferenciasUsuario() {
+  return requisitar("/usuarios/me/preferencias", {
+    method: "GET",
+    headers: { Authorization: `Bearer ${obterToken()}` },
+  });
+}
+
+export async function atualizarPreferenciasUsuario(preferencias) {
+  return requisitar("/usuarios/me/preferencias", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${obterToken()}`,
+    },
+    body: JSON.stringify(preferencias),
+  });
+}
+
+export async function alterarSenhaUsuario(dados) {
+  return requisitar("/usuarios/me/senha", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${obterToken()}`,
+    },
+    body: JSON.stringify(dados),
+  });
+} 

@@ -6,23 +6,18 @@ export default function HeroSection({ onNavegar }) {
     e.preventDefault();
     if (onNavegar) onNavegar("dashboard");
   }
-
+  
   return (
     <>
       {/* ── HERO ── */}
       <section className="mm-hero">
         {/* Left */}
         <div className="mm-hero-left">
-          <div className="mm-hero-badge">
-         
-          </div>
-
           <h1 className="mm-hero-title">
             Gestão inteligente
             <br />
-            para <em>negócios</em>
-            <br />
-            <em>modernos</em>
+            para{" "}
+            <span className="mm-hero-title-accent">negócios modernos</span>
           </h1>
 
           <p className="mm-hero-sub">
@@ -30,33 +25,43 @@ export default function HeroSection({ onNavegar }) {
             poderosa.
           </p>
 
-          <a href="#" className="mm-hero-cta" onClick={irParaDashboard}>
-            Acessar Dashboard
-          </a> 
+          <div className="mm-hero-actions">
+            <a href="#" className="mm-hero-cta" onClick={irParaDashboard}>
+              Acessar Dashboard
+              <span className="mm-hero-cta-arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
 
-          <div className="mm-hero-features">
-            <div className="mm-hero-feature">
-              <span className="mm-hero-feature-icon"></span>
-              <div>
-                <div className="mm-hero-feature-title">Relatórios</div>
-                <div className="mm-hero-feature-sub">em tempo real</div>
-              </div>
-            </div>
-            <div className="mm-hero-feature">
-              <span className="mm-hero-feature-icon"></span>
-              <div>
-                <div className="mm-hero-feature-title">Gestão de</div>
-                <div className="mm-hero-feature-sub">clientes</div>
-              </div>
-            </div>
-            <div className="mm-hero-feature">
-              <span className="mm-hero-feature-icon"></span>
-              <div>
-                <div className="mm-hero-feature-title">Decisões</div>
-                <div className="mm-hero-feature-sub">baseadas em dados</div>
-              </div>
-            </div>
+            <button
+              type="button"
+              className="mm-hero-cta-ghost"
+              onClick={() => onNavegar && onNavegar("planos")}
+            >
+              Ver planos
+            </button>
           </div>
+
+          <ul className="mm-hero-features">
+            <li className="mm-hero-feature">
+              <span className="mm-hero-check" aria-hidden="true">
+                ✓
+              </span>
+              Relatórios em tempo real
+            </li>
+            <li className="mm-hero-feature">
+              <span className="mm-hero-check" aria-hidden="true">
+                ✓
+              </span>
+              Gestão de clientes
+            </li>
+            <li className="mm-hero-feature">
+              <span className="mm-hero-check" aria-hidden="true">
+                ✓
+              </span>
+              Decisões baseadas em dados
+            </li>
+          </ul>
         </div>
 
         {/* Right — Laptop mockup */}
