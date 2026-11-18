@@ -1,0 +1,51 @@
+services:
+  # API + site on the same domain. VITE_API_URL is empty on purpose so
+  # browser requests use this service's own origin.
+  - type: web
+    name: marketmind-app
+    runtime: node
+    plan: free
+    buildCommand: cd front && npm ci && npm run build && cd ../back && npm ci
+    startCommand: cd back && node server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: ""
+      - key: VITE_CHAT_URL
+        fromService:
+          type: web
+          name: marketmind-chat
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: FRONT_URL
+        fromService:
+          type: web
+          name: marketmind-app
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "4000"
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: marketmind-chat
+    runtime: node
+    plan: free
+    rootDir: chat_ia
+    buildCommand: npm ci
+    startCommand: node server.js
+    healthCheckPath: /
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false

@@ -1,5 +1,5 @@
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 const TEMPO_LIMITE_MS = 15000;
 
 function obterToken() {

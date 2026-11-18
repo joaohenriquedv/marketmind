@@ -1,0 +1,13 @@
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependências e saídas de build
+**/node_modules/
+**/dist/
+**/build/
+*.log
