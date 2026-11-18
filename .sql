@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS negocios (
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
-
   CONSTRAINT fk_negocio_usuario
     FOREIGN KEY (usuario_id)
     REFERENCES usuarios(id)
@@ -55,7 +54,6 @@ CREATE TABLE IF NOT EXISTS produtos (
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   atualizado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
-
   CONSTRAINT fk_produto_negocio
     FOREIGN KEY (negocio_id)
     REFERENCES negocios(id)
@@ -74,7 +72,6 @@ CREATE TABLE IF NOT EXISTS alertas (
     NOT NULL DEFAULT 'automatico',
   resolvido BOOLEAN NOT NULL DEFAULT FALSE,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
   CONSTRAINT fk_alerta_negocio
     FOREIGN KEY (negocio_id)
     REFERENCES negocios(id)
@@ -87,31 +84,15 @@ CREATE TABLE IF NOT EXISTS conversas (
   pergunta TEXT NOT NULL,
   resposta TEXT NOT NULL,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
   CONSTRAINT fk_conversa_usuario
     FOREIGN KEY (usuario_id)
     REFERENCES usuarios(id)
     ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-UPDATE usuarios
-SET tipo = 'admin', ativo = TRUE
-WHERE email = 'joao5@gmail.com';
-
-SELECT id, nome, email, tipo, ativo
-FROM usuarios
-ORDER BY id DESC;
-
-SELECT * FROM negocios;
-SELECT * FROM produtos;
-SELECT * FROM alertas;
-SELECT * FROM conversas;
-
-ALTER TABLE usuarios
-ADD COLUMN telefone VARCHAR(30) NULL;
-
-ALTER TABLE usuarios
-ADD COLUMN foto LONGTEXT NULL;
-
-ALTER TABLE negocios
-ADD COLUMN descricao TEXT NULL;
+CREATE TABLE IF NOT EXISTS preferencias_usuario (
+  usuario_id BIGINT NOT NULL PRIMARY KEY,
+  dados JSON NOT NULL,
+  atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP
+);

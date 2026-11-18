@@ -24,6 +24,109 @@
   position: relative;
 }
 
+.navbar-apps {
+  position: relative;
+}
+
+.navbar-apps-button {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #657181;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.navbar-apps-button:hover,
+.navbar-apps-button.ativo {
+  color: #f47421;
+  background: #fff5ec;
+  border-color: #f5dfce;
+}
+
+.navbar-apps-button:focus-visible,
+.navbar-apps-item:focus-visible {
+  outline: 3px solid rgba(244, 116, 33, 0.35);
+  outline-offset: 2px;
+}
+
+.navbar-apps-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: -72px;
+  z-index: 1100;
+  width: 300px;
+  padding: 16px;
+  border: 1px solid #ececef;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(16, 24, 40, 0.16);
+}
+
+.navbar-apps-titulo {
+  margin: 0 0 12px 2px;
+  color: #657181;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.navbar-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.navbar-apps-item {
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 4px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #4d5968;
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.navbar-apps-icone {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #f6f7f8;
+  color: #657181;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navbar-apps-item:hover,
+.navbar-apps-item.ativo {
+  color: #d95f12;
+  background: #fff8f2;
+  border-color: #f6e2d2;
+}
+
+.navbar-apps-item:hover .navbar-apps-icone,
+.navbar-apps-item.ativo .navbar-apps-icone {
+  color: #f47421;
+  background: #ffeadb;
+}
+
 .navbar-dropdown {
   position: absolute;
   right: 0;
@@ -94,6 +197,13 @@
 
 .navbar-dropdown-item.sair:hover svg {
   color: #d64545;
+}
+
+@media (max-width: 600px) {
+  .navbar-apps-menu {
+    right: -58px;
+    width: min(300px, calc(100vw - 28px));
+  }
 }
 
 .perfil-menu a {

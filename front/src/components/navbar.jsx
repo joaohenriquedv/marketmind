@@ -1,7 +1,19 @@
 
 import { useState, useRef, useEffect } from "react";
 import "./navbar.css";
-import { UserRound, LogOut, Plus, ShieldCheck } from "lucide-react";
+import {
+  Bell,
+  CreditCard,
+  MessageCircle,
+  Home,
+  LayoutDashboard,
+  LayoutGrid,
+  LogOut,
+  Package,
+  Plus,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import NovoRelatorioModal from "./NovoRelatorioModal";
 
 function lerUsuario() {
@@ -23,14 +35,19 @@ function pegarIniciais(nome) {
 
 function Navbar({ onNavegar, paginaAtiva }) {
   const [menuAberto, setMenuAberto] = useState(false);
+  const [gradeAberta, setGradeAberta] = useState(false);
   const [relatorioAberto, setRelatorioAberto] = useState(false);
   const [usuario] = useState(lerUsuario);
   const menuRef = useRef(null);
+  const gradeRef = useRef(null);
 
   useEffect(() => {
     function handleClickFora(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuAberto(false);
+      }
+      if (gradeRef.current && !gradeRef.current.contains(e.target)) {
+        setGradeAberta(false);
       }
     }
     document.addEventListener("mousedown", handleClickFora);
@@ -52,6 +69,19 @@ function Navbar({ onNavegar, paginaAtiva }) {
 
   const iniciais = pegarIniciais(usuario?.nome ?? usuario?.name);
   const ehAdmin = usuario?.tipo === "admin";
+  const atalhos = [
+    { label: "Início", destino: "home", Icone: Home },
+    { label: "Dashboard", destino: "dashboard", Icone: LayoutDashboard },
+    { label: "Produtos", destino: "produto", Icone: Package },
+    { label: "Monitoramentos", destino: "alertas", Icone: Bell },
+    { label: "Contato", destino: "contato", Icone: MessageCircle },
+    { label: "Meu perfil", destino: "perfil", Icone: UserRound },
+    { label: "Planos", destino: "planos", Icone: CreditCard },
+  ];
+
+  if (ehAdmin) {
+    atalhos.push({ label: "Painel admin", destino: "admin", Icone: ShieldCheck });
+  }
 
   return (
     <>
@@ -106,6 +136,47 @@ function Navbar({ onNavegar, paginaAtiva }) {
         </nav>
 
         <div className="perfil-actions">
+          <div className="navbar-apps" ref={gradeRef}>
+            <button
+              type="button"
+              className={`navbar-apps-button${gradeAberta ? " ativo" : ""}`}
+              onClick={() => setGradeAberta((aberta) => !aberta)}
+              aria-label="Abrir menu de páginas"
+              aria-expanded={gradeAberta}
+              aria-haspopup="menu"
+              title="Páginas do MarketMind"
+            >
+              <LayoutGrid size={20} strokeWidth={2} />
+            </button>
+
+            {gradeAberta && (
+              <div className="navbar-apps-menu" role="menu">
+                <div className="navbar-apps-titulo">Páginas</div>
+                <div className="navbar-apps-grid">
+                  {atalhos.map(({ label, destino, Icone }) => (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      key={destino}
+                      className={`navbar-apps-item${
+                        paginaAtiva === destino ? " ativo" : ""
+                      }`}
+                      onClick={() => {
+                        setGradeAberta(false);
+                        onNavegar(destino);
+                      }}
+                    >
+                      <span className="navbar-apps-icone">
+                        <Icone size={19} strokeWidth={2} />
+                      </span>
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="navbar-user" ref={menuRef}>
             <button
               className="user-button"

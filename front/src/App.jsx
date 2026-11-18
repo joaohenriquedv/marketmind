@@ -53,7 +53,6 @@ function Home({ setPagina }) {
       <Diferencial />
       <Features />
       <ComoFunciona />
-      <ChatBot />
       <CTA onComecar={() => setPagina("cadastro-usuario")} />
     </>
   );
@@ -140,6 +139,7 @@ function App() {
       )}
 
       {renderizarPagina()}
+      {!semNavbar && <ChatBot />}
     </>
   );
 }
