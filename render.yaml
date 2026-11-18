@@ -5,7 +5,7 @@ services:
     name: marketmind-app
     runtime: node
     plan: free
-    buildCommand: cd front && npm ci && npm run build && cd ../back && npm ci
+    buildCommand: cd front && npm ci --include=dev && npm run build && cd ../back && npm ci --omit=dev
     startCommand: cd back && node server.js
     healthCheckPath: /
     envVars:
