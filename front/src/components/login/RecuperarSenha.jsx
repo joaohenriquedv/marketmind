@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, Wrench } from "lucide-react";
-import "./recuperarSenha.css";
+import "./RecuperarSenha.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOLDOWN_SEGUNDOS = 60;
