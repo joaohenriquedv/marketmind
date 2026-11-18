@@ -1,0 +1,458 @@
+/* Ajustes compartilhados para celular. Mantém cada página com seu estilo,
+   mas evita largura excedente e melhora o espaço de toque. */
+html,
+body,
+#root {
+  width: 100%;
+  min-width: 320px;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .perfil-navbar {
+    min-height: 72px;
+    height: auto;
+    padding: 10px 14px;
+  }
+
+  .perfil-logo {
+    width: auto;
+    flex-shrink: 0;
+    font-size: 21px;
+  }
+
+  .perfil-actions {
+    gap: 6px;
+  }
+
+  .perfil-actions .user-button {
+    display: flex;
+    padding-right: 4px;
+  }
+
+  .user-arrow {
+    display: none;
+  }
+
+  .navbar-apps-menu {
+    right: -54px;
+    width: min(300px, calc(100vw - 24px));
+  }
+
+  .chat-launcher {
+    right: max(14px, env(safe-area-inset-right));
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .chat-box {
+    right: 10px;
+    left: 10px;
+    bottom: max(82px, calc(env(safe-area-inset-bottom) + 76px));
+    width: auto;
+    height: min(560px, calc(100dvh - 104px));
+    max-height: calc(100dvh - 104px);
+  }
+
+  .page {
+    min-height: 100svh;
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-inline: 0;
+    text-align: left;
+  }
+
+  .login-container {
+    min-height: 0;
+    border-radius: 12px;
+  }
+
+  .left-panel {
+    padding: 24px 20px 20px;
+    gap: 18px;
+  }
+
+  .right-panel {
+    padding: 22px 18px 28px;
+  }
+
+  .form-card {
+    max-width: none;
+  }
+
+  .mm-row {
+    flex-direction: column;
+  }
+
+  .mm-left {
+    padding: 26px 20px 22px;
+  }
+
+  .mm-right {
+    padding: 22px 16px 32px;
+  }
+
+  .mm-card {
+    width: 100%;
+  }
+
+  .db-header {
+    padding: 18px 14px 16px;
+  }
+
+  .db-header-right {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+
+  .db-company-select {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .db-company-select span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .db-body {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .db-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .db-kpi {
+    min-width: 0;
+    padding: 13px 12px;
+    gap: 8px;
+  }
+
+  .db-kpi-value {
+    font-size: clamp(1.05rem, 5vw, 1.35rem);
+    overflow-wrap: anywhere;
+  }
+
+  .db-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .db-chart-card {
+    min-width: 0;
+    padding: 14px;
+    overflow: hidden;
+  }
+
+  .db-erro {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+
+  .db-erro-btn {
+    margin-left: 0;
+  }
+
+  .al-header-right,
+  .header-right {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .al-company-select,
+  .negocio-select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .al-card {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .al-card-body {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .al-card-top {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .al-card-title {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .adm-page {
+    padding: 20px 12px 40px;
+  }
+
+  .adm-header {
+    align-items: stretch;
+  }
+
+  .adm-header h1 {
+    font-size: 1.45rem;
+    overflow-wrap: anywhere;
+  }
+
+  .adm-refresh {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .adm-body {
+    gap: 14px;
+  }
+
+  .adm-card {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .adm-card-head {
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .adm-card-head .adm-busca,
+  .adm-busca {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .adm-tabela-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .adm-negocio-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adm-negocio-acoes {
+    flex-wrap: wrap;
+  }
+
+  .adm-btn-acao {
+    min-height: 42px;
+  }
+
+  .adm-modal-overlay {
+    align-items: flex-start;
+    padding: max(10px, env(safe-area-inset-top)) 10px 10px;
+  }
+
+  .adm-modal {
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+  }
+
+  .adm-modal-head,
+  .adm-modal-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .perfil-container {
+    padding: 20px 14px 40px;
+  }
+
+  .perfil-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .perfil-card,
+  .informacoes-card,
+  .preferencias-card,
+  .seguranca-card,
+  .plano-card,
+  .empresa-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .usuario-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .usuario-info {
+    flex: 1 1 180px;
+  }
+
+  .senha-form {
+    margin-left: 0;
+  }
+
+  .contato-page {
+    padding: 30px 14px 40px;
+  }
+
+  .contato-title {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+
+  .contato-header {
+    margin-bottom: 24px;
+  }
+
+  .contato-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .contato-card {
+    min-width: 0;
+    padding: 22px 16px;
+  }
+
+  .contato-info-value {
+    overflow-wrap: anywhere;
+  }
+
+  .planos-container {
+    padding: 20px 14px 44px;
+  }
+
+  .planos-atual {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .planos-atual-info {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .planos-modal-overlay {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .planos-modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+  }
+
+  .relatorio-overlay {
+    align-items: flex-start;
+    padding: max(10px, env(safe-area-inset-top)) 10px 10px;
+  }
+
+  .relatorio-modal {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+  }
+
+  .relatorio-form {
+    padding: 14px;
+  }
+
+  .nn-overlay {
+    align-items: stretch;
+  }
+
+  .nn-modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    box-sizing: border-box;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nn-modal-header,
+  .nn-body,
+  .nn-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .nn-row {
+    flex-direction: column;
+  }
+
+  .sn-dropdown {
+    width: min(280px, calc(100vw - 28px));
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .perfil-navbar {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .perfil-logo {
+    font-size: 19px;
+  }
+
+  .navbar-apps-button {
+    width: 38px;
+    height: 42px;
+  }
+
+  .user-avatar,
+  .user-avatar-img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .db-kpi {
+    padding: 11px 9px;
+  }
+
+  .db-kpi-label {
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .db-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .adm-negocio-fin {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
